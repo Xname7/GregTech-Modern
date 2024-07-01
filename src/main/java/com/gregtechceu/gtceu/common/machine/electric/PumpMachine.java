@@ -34,9 +34,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.joml.Vector2i;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -160,12 +162,14 @@ public class PumpMachine extends TieredEnergyMachine implements IAutoOutputFluid
             if (getOffsetTimer() % 20 == 0) {
                 BlockPos downPos = selfPos.below(1);
                 if (downPos.getY() >= getLevel().getMinBuildHeight()) {
-                    var downBlock = getLevel().getBlockState(downPos);
-                    if (downBlock.getBlock() instanceof LiquidBlock) {
+                    BlockState downBlock = getLevel().getBlockState(downPos);
+                    if (downBlock.getBlock() instanceof LiquidBlock || downBlock.isAir()) {
                         this.pumpHeadY++;
-                        if (getLevel() instanceof ServerLevel serverLevel &&
-                                serverLevel.getBlockState(selfPos).isAir()) {
-                            serverLevel.setBlockAndUpdate(selfPos, GTBlocks.MINER_PIPE.getDefaultState());
+                        if (getLevel() instanceof ServerLevel serverLevel) {
+                            BlockState blockState = serverLevel.getBlockState(selfPos);
+                            if (blockState.isAir() || (blockState.getBlock() instanceof LiquidBlock liquidBlock &&
+                                    !liquidBlock.getFluidState(blockState).isSource()))
+                                serverLevel.setBlockAndUpdate(selfPos, GTBlocks.MINER_PIPE.getDefaultState());
                         }
                     }
                 }
@@ -211,7 +215,8 @@ public class PumpMachine extends TieredEnergyMachine implements IAutoOutputFluid
             int maxPumpRange = getMaxPumpRange();
             for (var facing : GTUtil.DIRECTIONS) {
                 BlockPos offsetPos = checkPos.relative(facing);
-                if (offsetPos.distSqr(pumpHeadPos) > maxPumpRange * maxPumpRange)
+                if (new Vector2i(offsetPos.getX(), offsetPos.getZ()).distanceSquared(pumpHeadPos.getX(),
+                        pumpHeadPos.getZ()) > (long) maxPumpRange * maxPumpRange)
                     continue; // do not add blocks outside bounds
                 if (!fluidSourceBlocks.contains(offsetPos) &&
                         !blocksToCheck.contains(offsetPos)) {
