@@ -25,6 +25,7 @@ public class HigherDegreeMaterials {
                 .gem(1)
                 .color(0xb5e45a).secondaryColor(0x001430).iconSet(SHINY)
                 .flags(GENERATE_PLATE, NO_SMASHING, NO_SMELTING, DECOMPOSITION_BY_CENTRIFUGING)
+                .components(EnderPearl, 1, Blaze, 1)
                 .buildAndRegister();
 
         Diatomite = new Material.Builder(GTCEu.id("diatomite"))
@@ -36,7 +37,7 @@ public class HigherDegreeMaterials {
         RedSteel = new Material.Builder(GTCEu.id("red_steel"))
                 .ingot(3).fluid()
                 .color(0xa09191).secondaryColor(0x500404).iconSet(METALLIC)
-                .appendFlags(EXT_METAL, GENERATE_GEAR)
+                .appendFlags(EXT_METAL, GENERATE_GEAR, GENERATE_BOLT_SCREW, GENERATE_LONG_ROD)
                 .components(SterlingSilver, 1, BismuthBronze, 1, Steel, 2, BlackSteel, 4)
                 .toolStats(ToolProperty.Builder.of(7.0F, 6.0F, 2560, 3)
                         .attackSpeed(0.1F).enchantability(21).build())
@@ -45,8 +46,8 @@ public class HigherDegreeMaterials {
 
         BlueSteel = new Material.Builder(GTCEu.id("blue_steel"))
                 .ingot(3).fluid()
-                .color(0xa5bdda).secondaryColor(0x24245f).iconSet(METALLIC)
-                .appendFlags(EXT_METAL, GENERATE_FRAME, GENERATE_GEAR)
+                .color(0x779ac6).secondaryColor(0x191948).iconSet(METALLIC)
+                .appendFlags(EXT_METAL, GENERATE_FRAME, GENERATE_GEAR, GENERATE_BOLT_SCREW, GENERATE_LONG_ROD)
                 .components(RoseGold, 1, Brass, 1, Steel, 2, BlackSteel, 4)
                 .toolStats(ToolProperty.Builder.of(15.0F, 6.0F, 1024, 3)
                         .attackSpeed(0.1F).enchantability(33).build())
@@ -111,7 +112,7 @@ public class HigherDegreeMaterials {
         HSSE = new Material.Builder(GTCEu.id("hsse"))
                 .ingot(4).fluid()
                 .color(0x9d9cbe).secondaryColor(0x2b0350).iconSet(METALLIC)
-                .appendFlags(EXT2_METAL, GENERATE_FRAME, GENERATE_RING)
+                .appendFlags(EXT2_METAL, GENERATE_FRAME, GENERATE_RING, GENERATE_GEAR)
                 .components(HSSG, 6, Cobalt, 1, Manganese, 1, Silicon, 1)
                 .toolStats(ToolProperty.Builder.of(5.0F, 10.0F, 3072, 4)
                         .attackSpeed(0.3F).enchantability(33).build())
@@ -121,7 +122,7 @@ public class HigherDegreeMaterials {
 
         HSSS = new Material.Builder(GTCEu.id("hsss"))
                 .ingot(4).fluid()
-                .color(0xae9abe).secondaryColor(0x66000e).iconSet(METALLIC)
+                .color(0xa482bf).secondaryColor(0x66000e).iconSet(METALLIC)
                 .appendFlags(EXT2_METAL, GENERATE_SMALL_GEAR, GENERATE_RING, GENERATE_FRAME, GENERATE_ROTOR,
                         GENERATE_ROUND, GENERATE_FOIL, GENERATE_GEAR)
                 .components(HSSG, 6, Iridium, 2, Osmium, 1)
@@ -131,7 +132,7 @@ public class HigherDegreeMaterials {
 
         IridiumMetalResidue = new Material.Builder(GTCEu.id("iridium_metal_residue"))
                 .dust()
-                .color(0x5C5D68).secondaryColor(0x462941).iconSet(METALLIC)
+                .color(0x484a5e).secondaryColor(0x3e1c38).iconSet(METALLIC)
                 .flags(DISABLE_DECOMPOSITION)
                 .components(Iridium, 1, Chlorine, 3, PlatinumSludgeResidue, 1)
                 .buildAndRegister();
@@ -168,8 +169,6 @@ public class HigherDegreeMaterials {
         HotBrine = new Material.Builder(GTCEu.id("hot_brine"))
                 .liquid(320)
                 .color(0xbe6026)
-                .components(RawBrine, 1)
-                .flags(DISABLE_DECOMPOSITION)
                 .buildAndRegister();
 
         HotChlorinatedBrominatedBrine = new Material.Builder(GTCEu.id("hot_chlorinated_brominated_brine"))
@@ -182,8 +181,6 @@ public class HigherDegreeMaterials {
         HotDebrominatedBrine = new Material.Builder(GTCEu.id("hot_debrominated_brine"))
                 .liquid(320)
                 .color(0xab896d)
-                .components(DebrominatedBrine, 1)
-                .flags(DISABLE_DECOMPOSITION)
                 .buildAndRegister();
 
         HotAlkalineDebrominatedBrine = new Material.Builder(GTCEu.id("hot_alkaline_debrominated_brine"))
@@ -196,7 +193,7 @@ public class HigherDegreeMaterials {
         BlueAlloy = new Material.Builder(GTCEu.id("blue_alloy"))
                 .ingot()
                 .liquid(new FluidBuilder().temperature(1400))
-                .color(0x64B4FF).iconSet(METALLIC)
+                .color(0x64B4FF).secondaryColor(0x3c7dba).iconSet(METALLIC)
                 .flags(GENERATE_PLATE, GENERATE_BOLT_SCREW, DISABLE_DECOMPOSITION)
                 .components(Electrotine, 4, Silver, 1)
                 .cableProperties(GTValues.V[GTValues.HV], 2, 1)

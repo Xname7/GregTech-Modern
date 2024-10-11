@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -29,6 +30,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,8 +41,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
 
-import com.google.common.math.LongMath;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.datafixers.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -194,22 +196,17 @@ public class GTUtil {
      *         tier that can handle it, {@code MAX} is returned.
      */
     public static byte getTierByVoltage(long voltage) {
-        // Yes, yes we do need UHV+.
-        return (byte) Math.min(GTValues.MAX, nearestLesser(GTValues.V, voltage) + 1);
-    }
-
-    public static int getFakeVoltageTier(long voltage) {
-        long a = voltage;
-        int b = 0;
-        while (a / 4L >= 8L) {
-            b++;
-            a /= 4L;
+        if (voltage > Integer.MAX_VALUE) {
+            return GTValues.MAX;
         }
-        return b;
+        return getOCTierByVoltage(voltage);
     }
 
-    public static long getVoltageFromFakeTier(int tier) {
-        return LongMath.pow(4L, tier + 1) * 2;
+    public static byte getOCTierByVoltage(long voltage) {
+        if (voltage <= GTValues.V[GTValues.ULV]) {
+            return GTValues.ULV;
+        }
+        return (byte) ((62 - Long.numberOfLeadingZeros(voltage - 1)) >> 1);
     }
 
     /**
@@ -219,7 +216,14 @@ public class GTUtil {
      *         {@code ULV} if there's no tier below
      */
     public static byte getFloorTierByVoltage(long voltage) {
-        return (byte) Math.max(GTValues.ULV, nearestLesserOrEqual(GTValues.V, voltage));
+        if (voltage < GTValues.V[GTValues.ULV]) {
+            return GTValues.ULV;
+        }
+        if (voltage == GTValues.VEX[GTValues.MAX_TRUE]) {
+            return GTValues.MAX_TRUE;
+        }
+
+        return (byte) ((60 - Long.numberOfLeadingZeros(voltage)) >> 1);
     }
 
     public static ItemStack copy(ItemStack... stacks) {
@@ -439,7 +443,11 @@ public class GTUtil {
             return false;
         }
 
-        return world.isDay();
+        ResourceLocation javdVoidBiome = new ResourceLocation("javd", "void");
+        if (GTCEu.isJAVDLoaded() &&
+                world.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome).equals(javdVoidBiome)) {
+            return !world.isDay();
+        } else return world.isDay();
     }
 
     public static void appendHazardTooltips(Material material, List<Component> tooltipComponents) {
@@ -505,5 +513,18 @@ public class GTUtil {
             default -> new Tuple<>(ToolItemHelper.getToolItem(GTToolType.CROWBAR),
                     Component.translatable("gtceu.top.maintenance.crowbar"));
         };
+    }
+
+    public static void addPotionTooltip(List<Pair<MobEffectInstance, Float>> effects, List<Component> list) {
+        list.add(Component.translatable("gtceu.tooltip.potion.header"));
+        effects.forEach(pair -> {
+            var effect = pair.getFirst();
+            float probability = pair.getSecond();
+            list.add(Component.translatable("gtceu.tooltip.potion.each",
+                    Component.translatable(effect.getDescriptionId()),
+                    Component.translatable("enchantment.level." + (effect.getAmplifier() + 1)),
+                    effect.getDuration(),
+                    100 * probability));
+        });
     }
 }

@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.item.component.forge.IComponentCapability;
 import com.gregtechceu.gtceu.api.misc.FluidRecipeHandler;
 import com.gregtechceu.gtceu.api.misc.IgnoreEnergyRecipeHandler;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.utils.GradientUtil;
@@ -71,38 +72,46 @@ public class PowerlessJetpack implements IArmorLogic, IJetpack, IItemHUDProvider
             return;
 
         CompoundTag data = stack.getOrCreateTag();
-        byte toggleTimer = 0;
-        boolean hover = false;
 
         if (data.contains("burnTimer")) burnTimer = data.getShort("burnTimer");
-        if (data.contains("toggleTimer")) toggleTimer = data.getByte("toggleTimer");
-        if (data.contains("hover")) hover = data.getBoolean("hover");
+        if (!data.contains("enabled")) {
+            data.putBoolean("enabled", true);
+            data.putBoolean("hover", false);
+            data.putByte("toggleTimer", (byte) 0);
+        }
 
-        if (toggleTimer == 0 && KeyBind.ARMOR_HOVER.isKeyDown(player)) {
-            hover = !hover;
-            toggleTimer = 5;
-            data.putBoolean("hover", hover);
-            if (!world.isClientSide) {
-                if (hover)
-                    player.displayClientMessage(Component.translatable("metaarmor.jetpack.hover.enable"), true);
-                else
-                    player.displayClientMessage(Component.translatable("metaarmor.jetpack.hover.disable"), true);
+        boolean jetpackEnabled = data.getBoolean("enabled");
+        boolean hoverMode = data.getBoolean("hover");
+        byte toggleTimer = data.getByte("toggleTimer");
+
+        String messageKey = null;
+        if (toggleTimer == 0) {
+            if (KeyBind.JETPACK_ENABLE.isKeyDown(player)) {
+                jetpackEnabled = !jetpackEnabled;
+                messageKey = "metaarmor.jetpack.flight." + (jetpackEnabled ? "enable" : "disable");
+                data.putBoolean("enabled", jetpackEnabled);
+            } else if (KeyBind.ARMOR_HOVER.isKeyDown(player)) {
+                hoverMode = !hoverMode;
+                messageKey = "metaarmor.jetpack.hover." + (hoverMode ? "enable" : "disable");
+                data.putBoolean("hover", hoverMode);
+            }
+
+            if (messageKey != null) {
+                toggleTimer = 5;
+                if (!world.isClientSide) player.displayClientMessage(Component.translatable(messageKey), true);
             }
         }
+
+        if (toggleTimer > 0) toggleTimer--;
+        data.putByte("toggleTimer", toggleTimer);
 
         // This causes a caching issue. currentRecipe is only set to null in findNewRecipe, so the fuel is never updated
         // Rewrite in Armor Rework
         if (currentRecipe == null)
             findNewRecipe(stack);
 
-        performFlying(player, hover, stack);
-
-        if (toggleTimer > 0)
-            toggleTimer--;
-
-        data.putBoolean("hover", hover);
+        performFlying(player, jetpackEnabled, hoverMode, stack);
         data.putShort("burnTimer", (short) burnTimer);
-        data.putByte("toggleTimer", toggleTimer);
     }
 
     @Override
@@ -137,6 +146,13 @@ public class PowerlessJetpack implements IArmorLogic, IJetpack, IItemHUDProvider
             CompoundTag data = item.getTag();
 
             if (data != null) {
+                if (data.contains("enabled")) {
+                    Component status = (data.getBoolean("enabled") ?
+                            Component.translatable("metaarmor.hud.status.enabled") :
+                            Component.translatable("metaarmor.hud.status.disabled"));
+                    Component result = Component.translatable("metaarmor.hud.engine_enabled", status);
+                    this.HUD.newString(result);
+                }
                 if (data.contains("hover")) {
                     Component status = (data.getBoolean("hover") ?
                             Component.translatable("metaarmor.hud.status.enabled") :
@@ -197,17 +213,19 @@ public class PowerlessJetpack implements IArmorLogic, IJetpack, IItemHUDProvider
         IFluidTransfer internalTank = getIFluidHandlerItem(stack);
         if (internalTank != null) {
             com.lowdragmc.lowdraglib.side.fluid.FluidStack fluidStack = internalTank.drain(1, false);
-            if (previousRecipe != null && fluidStack != null &&
+            if (previousRecipe != null && !fluidStack.isEmpty() &&
                     FluidRecipeCapability.CAP.of(previousRecipe.getInputContents(FluidRecipeCapability.CAP).get(0))
                             .test(fluidStack) &&
                     fluidStack.getAmount() > 0) {
                 currentRecipe = previousRecipe;
                 return;
-            } else if (fluidStack != null) {
+            } else if (!fluidStack.isEmpty()) {
                 Table<IO, RecipeCapability<?>, List<IRecipeHandler<?>>> table = Tables
                         .newCustomTable(new EnumMap<>(IO.class), IdentityHashMap::new);
                 FluidRecipeHandler handler = new FluidRecipeHandler(IO.IN, 1, Long.MAX_VALUE);
+                handler.getStorages()[0].setFluid(fluidStack);
                 table.put(IO.IN, FluidRecipeCapability.CAP, Collections.singletonList(handler));
+                table.put(IO.OUT, EURecipeCapability.CAP, Collections.singletonList(new IgnoreEnergyRecipeHandler()));
                 IRecipeCapabilityHolder holder = new IRecipeCapabilityHolder() {
 
                     @Override
@@ -237,8 +255,9 @@ public class PowerlessJetpack implements IArmorLogic, IJetpack, IItemHUDProvider
 
     public FluidStack getFuel() {
         if (currentRecipe != null) {
-            return FluidRecipeCapability.CAP.of(currentRecipe.getInputContents(FluidRecipeCapability.CAP).get(0))
-                    .getStacks()[0];
+            var recipeInputs = currentRecipe.inputs.get(FluidRecipeCapability.CAP);
+            FluidIngredient fluid = FluidRecipeCapability.CAP.of(recipeInputs.get(0).content);
+            return fluid.getStacks()[0];
         }
 
         return FluidStack.empty();
@@ -316,12 +335,16 @@ public class PowerlessJetpack implements IArmorLogic, IJetpack, IItemHUDProvider
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents,
                                     TooltipFlag isAdvanced) {
             CompoundTag data = stack.getOrCreateTag();
-            Component status = Component.translatable("metaarmor.hud.status.disabled");
-            if (data.contains("hover")) {
-                if (data.getBoolean("hover"))
-                    status = Component.translatable("metaarmor.hud.status.enabled");
-            }
-            tooltipComponents.add(Component.translatable("metaarmor.hud.hover_mode", status));
+            Component state;
+            boolean enabled = !data.contains("enabled") || data.getBoolean("enabled");
+            state = enabled ? Component.translatable("metaarmor.hud.status.enabled") :
+                    Component.translatable("metaarmor.hud.status.disabled");
+            tooltipComponents.add(Component.translatable("metaarmor.hud.engine_enabled", state));
+
+            boolean hover = data.contains("hover") && data.getBoolean("hover");
+            state = hover ? Component.translatable("metaarmor.hud.status.enabled") :
+                    Component.translatable("metaarmor.hud.status.disabled");
+            tooltipComponents.add(Component.translatable("metaarmor.hud.hover_mode", state));
         }
 
         @Override

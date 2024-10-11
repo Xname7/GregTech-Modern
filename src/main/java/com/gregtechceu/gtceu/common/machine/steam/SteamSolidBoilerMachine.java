@@ -7,10 +7,11 @@ import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.feature.IMachineModifyDrops;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.steam.SteamBoilerMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
+import com.gregtechceu.gtceu.config.ConfigHolder;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
@@ -31,7 +32,6 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -42,7 +42,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class SteamSolidBoilerMachine extends SteamBoilerMachine implements IMachineModifyDrops {
+public class SteamSolidBoilerMachine extends SteamBoilerMachine implements IMachineLife {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SteamSolidBoilerMachine.class, SteamBoilerMachine.MANAGED_FIELD_HOLDER);
@@ -90,7 +90,8 @@ public class SteamSolidBoilerMachine extends SteamBoilerMachine implements IMach
 
     @Override
     protected long getBaseSteamOutput() {
-        return (isHighPressure ? 300 : 120);
+        return isHighPressure ? ConfigHolder.INSTANCE.machines.smallBoilers.hpSolidBoilerBaseOutput :
+                ConfigHolder.INSTANCE.machines.smallBoilers.solidBoilerBaseOutput;
     }
 
     @Override
@@ -147,8 +148,8 @@ public class SteamSolidBoilerMachine extends SteamBoilerMachine implements IMach
     }
 
     @Override
-    public void onDrops(List<ItemStack> drops, Player entity) {
-        clearInventory(drops, fuelHandler.storage);
-        clearInventory(drops, ashHandler.storage);
+    public void onMachineRemoved() {
+        clearInventory(fuelHandler.storage);
+        clearInventory(ashHandler.storage);
     }
 }

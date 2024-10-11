@@ -4,7 +4,9 @@ import com.gregtechceu.gtceu.api.addon.AddonFinder;
 import com.gregtechceu.gtceu.api.addon.events.KJSRecipeKeyEvent;
 import com.gregtechceu.gtceu.api.capability.recipe.*;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
+import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderIngredient;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.common.data.GTRecipeCapabilities;
 
@@ -91,6 +93,78 @@ public class GTRecipeComponents {
             return componentType();
         }
     };
+    public static final RecipeComponent<RecipeCapability<?>> RECIPE_CAPABILITY = new RecipeComponent<>() {
+
+        @Override
+        public String componentType() {
+            return "recipe_capability";
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return RecipeCapability.class;
+        }
+
+        @Override
+        public TypeDescJS constructorDescription(DescriptionContext ctx) {
+            return TypeDescJS.STRING;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, RecipeCapability<?> value) {
+            return new JsonPrimitive(GTRegistries.RECIPE_CAPABILITIES.getKey(value));
+        }
+
+        @Override
+        public RecipeCapability<?> read(RecipeJS recipe, Object from) {
+            if (from instanceof RecipeCapability<?> capability) {
+                return capability;
+            }
+            return from instanceof CharSequence c ? GTRegistries.RECIPE_CAPABILITIES.get(c.toString()) :
+                    GTRegistries.RECIPE_CAPABILITIES.get(String.valueOf(from));
+        }
+
+        @Override
+        public String toString() {
+            return componentType();
+        }
+    };
+    public static final RecipeComponent<ChanceLogic> CHANCE_LOGIC = new RecipeComponent<>() {
+
+        @Override
+        public String componentType() {
+            return "chance_logic";
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return ChanceLogic.class;
+        }
+
+        @Override
+        public TypeDescJS constructorDescription(DescriptionContext ctx) {
+            return TypeDescJS.STRING;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, ChanceLogic value) {
+            return new JsonPrimitive(GTRegistries.CHANCE_LOGICS.getKey(value));
+        }
+
+        @Override
+        public ChanceLogic read(RecipeJS recipe, Object from) {
+            if (from instanceof ChanceLogic capability) {
+                return capability;
+            }
+            return from instanceof CharSequence c ? GTRegistries.CHANCE_LOGICS.get(c.toString()) :
+                    GTRegistries.CHANCE_LOGICS.get(String.valueOf(from));
+        }
+
+        @Override
+        public String toString() {
+            return componentType();
+        }
+    };
 
     public static final RecipeComponent<RecipeCondition> RECIPE_CONDITION = new RecipeComponent<>() {
 
@@ -107,7 +181,7 @@ public class GTRecipeComponents {
         @Override
         public JsonElement write(RecipeJS recipe, RecipeCondition value) {
             JsonObject object = new JsonObject();
-            object.addProperty("type", GTRegistries.RECIPE_CONDITIONS.getKey(value.getClass()));
+            object.addProperty("type", GTRegistries.RECIPE_CONDITIONS.getKey(value.getType()));
             object.add("data", value.serialize());
             return object;
         }
@@ -116,24 +190,24 @@ public class GTRecipeComponents {
         public RecipeCondition read(RecipeJS recipe, Object from) {
             if (from instanceof CharSequence) {
                 var conditionKey = from.toString();
-                var clazz = GTRegistries.RECIPE_CONDITIONS.get(conditionKey);
-                if (clazz != null) {
-                    return RecipeCondition.create(clazz);
+                var type = GTRegistries.RECIPE_CONDITIONS.get(conditionKey);
+                if (type != null) {
+                    return type.factory.createDefault();
                 }
             }
             if (from instanceof JsonPrimitive primitive) {
                 var conditionKey = primitive.getAsString();
-                var clazz = GTRegistries.RECIPE_CONDITIONS.get(conditionKey);
-                if (clazz != null) {
-                    return RecipeCondition.create(clazz);
+                var type = GTRegistries.RECIPE_CONDITIONS.get(conditionKey);
+                if (type != null) {
+                    return type.factory.createDefault();
                 }
             } else if (from instanceof JsonObject jsonObject) {
                 var conditionKey = GsonHelper.getAsString(jsonObject, "type", "");
-                var clazz = GTRegistries.RECIPE_CONDITIONS.get(conditionKey);
-                if (clazz != null) {
-                    RecipeCondition condition = RecipeCondition.create(clazz);
+                var type = GTRegistries.RECIPE_CONDITIONS.get(conditionKey);
+                if (type != null) {
+                    RecipeCondition condition = type.factory.createDefault();
                     if (condition != null) {
-                        return condition.deserialize(GsonHelper.getAsJsonObject(jsonObject, "data", new JsonObject()));
+                        return condition.deserialize(jsonObject);
                     }
                 }
             } else if (from instanceof Tag tag) {
@@ -211,10 +285,71 @@ public class GTRecipeComponents {
             return FluidIngredientJS.of(from);
         }
     };
+    public static final RecipeComponent<ExtendedOutputItem> EXTENDED_OUTPUT = new RecipeComponent<>() {
+
+        @Override
+        public String componentType() {
+            return "extended_output_item";
+        }
+
+        @Override
+        public ComponentRole role() {
+            return ComponentRole.OUTPUT;
+        }
+
+        @Override
+        public Class<?> componentClass() {
+            return OutputItem.class;
+        }
+
+        @Override
+        public boolean hasPriority(RecipeJS recipe, Object from) {
+            return recipe.outputItemHasPriority(from);
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, ExtendedOutputItem value) {
+            return recipe.writeOutputItem(value);
+        }
+
+        @Override
+        public ExtendedOutputItem read(RecipeJS recipe, Object from) {
+            if (from instanceof IntProviderIngredient intProvider) {
+                return new ExtendedOutputItem(intProvider, 1);
+            }
+            return ExtendedOutputItem.fromOutputItem(recipe.readOutputItem(from));
+        }
+
+        @Override
+        public boolean isOutput(RecipeJS recipe, ExtendedOutputItem value, ReplacementMatch match) {
+            return match instanceof ItemMatch m && !value.isEmpty() && m.contains(value.ingredient);
+        }
+
+        @Override
+        public ExtendedOutputItem replaceOutput(RecipeJS recipe, ExtendedOutputItem original, ReplacementMatch match,
+                                                OutputReplacement with) {
+            return isOutput(recipe, original, match) ? read(recipe, with.replaceOutput(recipe, match, original)) :
+                    original;
+        }
+
+        @Override
+        public String checkEmpty(RecipeKey<ExtendedOutputItem> key, ExtendedOutputItem value) {
+            if (value.isEmpty()) {
+                return "Ingredient '" + key.name + "' can't be empty!";
+            }
+
+            return "";
+        }
+
+        @Override
+        public String toString() {
+            return componentType();
+        }
+    };
 
     public static final ContentJS<InputItem> ITEM_IN = new ContentJS<>(ItemComponents.INPUT, GTRecipeCapabilities.ITEM,
             false);
-    public static final ContentJS<OutputItem> ITEM_OUT = new ContentJS<>(ItemComponents.OUTPUT,
+    public static final ContentJS<ExtendedOutputItem> ITEM_OUT = new ContentJS<>(EXTENDED_OUTPUT,
             GTRecipeCapabilities.ITEM, true);
     public static final ContentJS<FluidIngredientJS> FLUID_IN = new ContentJS<>(FLUID_INGREDIENT,
             GTRecipeCapabilities.FLUID, false);
@@ -237,6 +372,9 @@ public class GTRecipeComponents {
     public static final CapabilityMapComponent TICK_IN = new CapabilityMapComponent(false);
     public static final CapabilityMapComponent OUT = new CapabilityMapComponent(true);
     public static final CapabilityMapComponent TICK_OUT = new CapabilityMapComponent(true);
+
+    public static final RecipeComponent<Map<RecipeCapability<?>, ChanceLogic>> CHANCE_LOGIC_MAP = new JavaMapRecipeComponent<>(
+            RECIPE_CAPABILITY, CHANCE_LOGIC);
 
     /**
      * First in pair is in, second is out

@@ -57,10 +57,12 @@ public class LangHandler {
         provider.add("recipe.condition.thunder.tooltip", "Thunder Level: %d");
         provider.add("recipe.condition.rain.tooltip", "Rain Level: %d");
         provider.add("recipe.condition.dimension.tooltip", "Dimension: %s");
+        provider.add("recipe.condition.dimension_marker.tooltip", "Dimension:");
         provider.add("recipe.condition.biome.tooltip", "Biome: %s");
         provider.add("recipe.condition.pos_y.tooltip", "Y Level: %d <= Y <= %d");
         provider.add("recipe.condition.steam_vent.tooltip", "Clean steam vent");
         provider.add("recipe.condition.rock_breaker.tooltip", "Fluid blocks around");
+        provider.add("recipe.condition.adjacent_block.tooltip", "Blocks around");
         provider.add("recipe.condition.eu_to_start.tooltip", "EU to start: %d");
 
         provider.add("gtceu.io.import", "Import");
@@ -123,6 +125,10 @@ public class LangHandler {
         provider.add("command.gtceu.medical_condition.get.empty", "Player %s has no medical conditions.");
         provider.add("command.gtceu.medical_condition.get.element", "Condition %s§r: %s seconds");
         provider.add("command.gtceu.medical_condition.get.element.permanent", "Condition %s§r: %s seconds (permanent)");
+        provider.add("command.gtceu.dump_data.success", "Dumped %s resources from registry %s to %s");
+        provider.add("command.gtceu.place_vein.failure", "Failed to place vein %s at position %s");
+        provider.add("command.gtceu.place_vein.success", "Placed vein %s at position %s");
+
         provider.add("gtceu.medical_condition.description", "§l§cHAZARDOUS §7Hold Shift to show details");
         provider.add("gtceu.medical_condition.description_shift", "§l§cHAZARDOUS:");
         provider.add("gtceu.medical_condition.chemical_burns", "§5Chemical burns");
@@ -160,7 +166,7 @@ public class LangHandler {
         provider.add("item.gtceu.tool.behavior.scrape", "§bPolisher: §fRemoves Oxidation");
         provider.add("item.gtceu.tool.behavior.remove_wax", "§6Cleaner: §fRemoves Wax");
         provider.add("item.gtceu.tool.behavior.shield_disable", "§cBrute: §fDisables Shields");
-        provider.add("item.gtceu.tool.behavior.relocate_mining", "§2Magnetic: §fRelocates Mined Blocks");
+        provider.add("item.gtceu.tool.behavior.relocate_mining", "§2Magnetic: §fRelocates Mined Blocks and Mob Drops");
         provider.add("item.gtceu.tool.behavior.aoe_mining", "§5Area-of-Effect: §f%sx%sx%s");
         provider.add("item.gtceu.tool.behavior.ground_tilling", "§eFarmer: §fTills Ground");
         provider.add("item.gtceu.tool.behavior.grass_path", "§eLandscaper: §fCreates Grass Paths");
@@ -199,6 +205,9 @@ public class LangHandler {
         replace(provider, "item.gtceu.tool.hv_drill", "%s Drill (HV)");
         replace(provider, "item.gtceu.tool.ev_drill", "%s Drill (EV)");
         replace(provider, "item.gtceu.tool.iv_drill", "%s Drill (IV)");
+        replace(provider, "item.gtceu.tool.lv_wirecutter", "%s Wire Cutter (LV)");
+        replace(provider, "item.gtceu.tool.hv_wirecutter", "%s Wire Cutter (HV)");
+        replace(provider, "item.gtceu.tool.iv_wirecutter", "%s Wire Cutter (IV)");
         replace(provider, "item.gtceu.tool.mining_hammer", "%s Mining Hammer");
         provider.add("item.gtceu.tool.mining_hammer.tooltip",
                 "§8Mines a large area at once (unless you're crouching)");
@@ -263,10 +272,14 @@ public class LangHandler {
         provider.add("metaitem.liquid_fuel_jetpack.tooltip", "Uses Combustion Generator Fuels for Thrust");
         provider.add("metaarmor.nms.nightvision.enabled", "NanoMuscle™ Suite: NightVision Enabled");
         provider.add("metaarmor.nms.nightvision.disabled", "NanoMuscle™ Suite: NightVision Disabled");
+        provider.add("metaarmor.nms.boosted_jump.enabled", "NanoMuscle™ Suite: Jump Boost Enabled");
+        provider.add("metaarmor.nms.boosted_jump.disabled", "NanoMuscle™ Suite: Jump Boost Disabled");
         provider.add("metaarmor.nms.nightvision.error", "NanoMuscle™ Suite: §cNot enough power!");
         provider.add("metaarmor.qts.nightvision.enabled", "QuarkTech™ Suite: NightVision Enabled");
         provider.add("metaarmor.qts.nightvision.disabled", "QuarkTech™ Suite: NightVision Disabled");
         provider.add("metaarmor.qts.nightvision.error", "QuarkTech™ Suite: §cNot enough power!");
+        provider.add("metaarmor.jetpack.flight.enable", "Jetpack: Flight Enabled");
+        provider.add("metaarmor.jetpack.flight.disable", "Jetpack: Flight Disabled");
         provider.add("metaarmor.jetpack.hover.enable", "Jetpack: Hover Mode Enabled");
         provider.add("metaarmor.jetpack.hover.disable", "Jetpack: Hover Mode Disabled");
         provider.add("metaarmor.jetpack.emergency_hover_mode", "Emergency Hover Mode Enabled!");
@@ -290,6 +303,7 @@ public class LangHandler {
         provider.add("metaarmor.hud.status.enabled", "§aON");
         provider.add("metaarmor.hud.status.disabled", "§cOFF");
         provider.add("metaarmor.hud.energy_lvl", "Energy Level: %s");
+        provider.add("metaarmor.hud.engine_enabled", "Engine Enabled: %s");
         provider.add("metaarmor.hud.fuel_lvl", "Fuel Level: %s");
         provider.add("metaarmor.hud.hover_mode", "Hover Mode: %s");
         provider.add("mataarmor.hud.supply_mode", "Supply Mode: %s");
@@ -462,6 +476,7 @@ public class LangHandler {
         replace(provider, GTMaterials.HSSE.getUnlocalizedName(), "HSS-E");
         replace(provider, GTMaterials.HSSS.getUnlocalizedName(), "HSS-S");
         replace(provider, GTMaterials.RTMAlloy.getUnlocalizedName(), "RTM Alloy");
+        replace(provider, GTMaterials.HSLASteel.getUnlocalizedName(), "HSLA Steel");
 
         replace(provider, GTMaterials.UUMatter.getUnlocalizedName(), "UU-Matter");
         replace(provider, GTMaterials.PCBCoolant.getUnlocalizedName(), "PCB Coolant");
@@ -521,6 +536,7 @@ public class LangHandler {
                 "Severely Steam-Cracked Light Fuel");
         replace(provider, GTMaterials.SeverelySteamCrackedNaphtha.getUnlocalizedName(),
                 "Severely Steam-Cracked Naphtha");
+        replace(provider, GTMaterials.LPG.getUnlocalizedName(), "LPG");
 
         replace(provider, GTMaterials.Zeron100.getUnlocalizedName(), "Zeron-100");
         replace(provider, GTMaterials.IncoloyMA956.getUnlocalizedName(), "Incoloy MA-956");
@@ -680,7 +696,8 @@ public class LangHandler {
         provider.add("behaviour.soft_hammer", "Activates and Deactivates Machines");
         provider.add("behaviour.soft_hammer.enabled", "Working Enabled");
         provider.add("behaviour.soft_hammer.disabled", "Working Disabled");
-        provider.add("behaviour.lighter.tooltip", "Can light things on fire");
+        provider.add("behaviour.lighter.tooltip.description", "Can light things on fire");
+        provider.add("behaviour.lighter.tooltip.usage", "Shift-right click to open/close");
         provider.add("behaviour.lighter.fluid.tooltip", "Can light things on fire with Butane or Propane");
         provider.add("behaviour.lighter.uses", "Remaining uses: %d");
         provider.add("behavior.toggle_energy_consumer.tooltip", "Use to toggle mode");
@@ -707,18 +724,18 @@ public class LangHandler {
         provider.add("behaviour.paintspray.uses", "Remaining Uses: %d");
         provider.add("behaviour.prospecting", "Usable for Prospecting");
         provider.add("enchantment.damage.disjunction", "Disjunction");
-        provider.add("enchantment.gtceu.disjunction.desc",
+        provider.add("enchantment.gtceu.disjunction.description",
                 "Applies Weakness and Slowness to Ender-related mobs.");
         provider.add("enchantment.hard_hammer", "Hammering");
-        provider.add("enchantment.gtceu.hard_hammer.desc",
+        provider.add("enchantment.gtceu.hard_hammer.description",
                 "Breaks blocks as if they were mined with a GregTech Hammer.");
         provider.add("tile.gtceu.seal.name", "Sealed Block");
         provider.add("tile.gtceu.foam.name", "Foam");
         provider.add("tile.gtceu.reinforced_foam.name", "Reinforced Foam");
         provider.add("tile.gtceu.petrified_foam.name", "Petrified Foam");
         provider.add("tile.gtceu.reinforced_stone.name", "Reinforced Stone");
-        provider.add("tile.brittle_charcoal.name", "Brittle Charcoal");
-        multilineLang(provider, "tile.brittle_charcoal.tooltip",
+        provider.add("tile.gtceu.brittle_charcoal.name", "Brittle Charcoal");
+        multilineLang(provider, "tile.gtceu.brittle_charcoal.tooltip",
                 "Produced by the Charcoal Pile Igniter.\nMine this to get Charcoal.");
         provider.add("metaitem.prospector.mode.ores", "§aOre Prospection Mode§r");
         provider.add("metaitem.prospector.mode.fluid", "§bFluid Prospection Mode§r");
@@ -756,6 +773,10 @@ public class LangHandler {
         provider.add("behavior.portable_scanner.amp_per_sec", "Average (last second): %s A");
         provider.add("behavior.portable_scanner.machine_disabled", "Disabled.");
         provider.add("behavior.portable_scanner.machine_front_facing", "Front Facing: %s");
+        provider.add("behavior.portable_scanner.machine_ownership", "§2Machine Owner Type: %s§r");
+        provider.add("behavior.portable_scanner.guild_name", "§2Guild Name: %s§r");
+        provider.add("behavior.portable_scanner.team_name", "§2Team Name: %s§r");
+        provider.add("behavior.portable_scanner.player_name", "§2Player Name: %s§r, §7Player Online: %s§r");
         provider.add("behavior.portable_scanner.machine_power_loss", "Shut down due to power loss.");
         provider.add("behavior.portable_scanner.machine_progress", "Progress/Load: %s / %s");
         provider.add("behavior.portable_scanner.machine_upwards_facing", "Upwards Facing: %s");
@@ -871,9 +892,9 @@ public class LangHandler {
         provider.add("gtceu.universal.tooltip.working_area_max", "§bMax Working Area: §f%dx%d");
         provider.add("gtceu.universal.tooltip.working_area_chunks_max", "§bMax Working Area: §f%dx%d Chunks");
         provider.add("gtceu.universal.tooltip.uses_per_tick", "Uses §f%d EU/t §7while working");
-        provider.add("gtceu.universal.tooltip.uses_per_tick_steam", "Uses §f%d mB/t §7of Steam while working");
+        provider.add("gtceu.universal.tooltip.uses_per_tick_steam", "Uses §f%d mB/t §7of §fSteam §7while working");
         provider.add("gtceu.universal.tooltip.uses_per_hour_lubricant",
-                "Uses §f%d mB/hr §7of Lubricant while working");
+                "Uses §f%d mB/hr §7of §6Lubricant §7while working");
         provider.add("gtceu.universal.tooltip.uses_per_second", "Uses §f%d EU/s §7while working");
         provider.add("gtceu.universal.tooltip.uses_per_op", "Uses §f%d EU/operation");
         provider.add("gtceu.universal.tooltip.base_production_eut", "§eBase Production: §f%d EU/t");
@@ -898,8 +919,8 @@ public class LangHandler {
         provider.add("gtceu.recipe.eu_to_start", "Energy To Start: %sEU");
         provider.add("gtceu.recipe.dimensions", "Dimensions: %s");
         provider.add("gtceu.recipe.cleanroom", "Requires %s");
-        provider.add("gtceu.recipe.environmental_hazard.reverse", "Area must be free of %s");
-        provider.add("gtceu.recipe.environmental_hazard", "Area must have %s");
+        provider.add("gtceu.recipe.environmental_hazard.reverse", "§cArea must be free of %s");
+        provider.add("gtceu.recipe.environmental_hazard", "§cArea must have %s");
         provider.add("gtceu.recipe.cleanroom.display_name", "Cleanroom");
         provider.add("gtceu.recipe.cleanroom_sterile.display_name", "Sterile Cleanroom");
         provider.add("gtceu.recipe.research", "Requires Research");
@@ -1044,11 +1065,15 @@ public class LangHandler {
         provider.add("gtceu.duct_pipe.transfer_rate", "§bAir transfer rate: %s");
         provider.add("gtceu.multiblock.work_paused", "Work Paused.");
         provider.add("gtceu.multiblock.running", "Running perfectly.");
-        provider.add("gtceu.multiblock.idling", "Idling.");
+        provider.add("gtceu.multiblock.idling", "§6Idling.");
         provider.add("gtceu.multiblock.not_enough_energy", "WARNING: Machine needs more energy.");
         provider.add("gtceu.multiblock.not_enough_energy_output", "WARNING: Energy Dynamo Tier Too Low!");
         provider.add("gtceu.multiblock.waiting", "WARNING: Machine is waiting.");
-        provider.add("gtceu.multiblock.progress", "Progress: %s%%");
+        provider.add("gtceu.multiblock.progress", "Progress: %ss / %ss (%s%%)");
+        provider.add("gtceu.multiblock.output_line.0", "%s x §e%s§r (%ss/ea)");
+        provider.add("gtceu.multiblock.output_line.1", "%s x §e%s§r (%s/s)");
+        provider.add("gtceu.multiblock.output_line.2", "%s ≈ §e%s§r (%ss/ea)");
+        provider.add("gtceu.multiblock.output_line.3", "%s ≈ §e%s§r (%s/s)");
         provider.add("gtceu.multiblock.invalid_structure", "Invalid structure.");
         provider.add("gtceu.multiblock.invalid_structure.tooltip",
                 "This block is a controller of the multiblock structure. For building help, see structure template in JEI.");
@@ -1079,6 +1104,7 @@ public class LangHandler {
         provider.add("gtceu.multiblock.universal.muffler_obstructed", "Muffler Hatch is Obstructed!");
         provider.add("gtceu.multiblock.universal.muffler_obstructed.tooltip",
                 "Muffler Hatch must have a block of airspace in front of it.");
+        provider.add("gtceu.multiblock.universal.rotor_obstructed", "Rotor is Obstructed!");
         provider.add("gtceu.multiblock.universal.distinct", "Distinct Buses:");
         provider.add("gtceu.multiblock.universal.distinct.no", "No");
         provider.add("gtceu.multiblock.universal.distinct.yes", "Yes");
@@ -1182,6 +1208,8 @@ public class LangHandler {
         provider.add("fluid.tile.water", "Water");
         provider.add("gtceu.key.armor_mode_switch", "Armor Mode Switch");
         provider.add("gtceu.key.armor_hover", "Armor Hover Toggle");
+        provider.add("gtceu.key.enable_jetpack", "Enable Jetpack");
+        provider.add("gtceu.key.enable_boots", "Enable Boosted Jump");
         provider.add("gtceu.key.armor_charging", "Armor Charging to Inventory Toggle");
         provider.add("gtceu.key.tool_aoe_change", "Tool AoE Mode Switch");
         provider.add("gtceu.debug.f3_h.enabled",
@@ -1199,7 +1227,12 @@ public class LangHandler {
         provider.add("config.jade.plugin_gtceu.maintenance_info", "[GTCEu] Maintenance Info");
         provider.add("config.jade.plugin_gtceu.multiblock_structure", "[GTCEu] MultiBlock Structure");
         provider.add("config.jade.plugin_gtceu.parallel_info", "[GTCEu] Parallel Info");
+        provider.add("config.jade.plugin_gtceu.primitive_pump", "[GTCEu] Primitive Pump Info");
+        provider.add("config.jade.plugin_gtceu.transformer", "[GTCEu] Transformer Info");
         provider.add("config.jade.plugin_gtceu.stained_color", "[GTCEu] Stained Block Info");
+        provider.add("config.jade.plugin_gtceu.me_pattern_buffer", "[GTCEu] Pattern Buffer Info");
+        provider.add("config.jade.plugin_gtceu.me_pattern_buffer_proxy", "[GTCEu] Pattern Buffer Proxy Info");
+
         // gui
         provider.add("gtceu.recipe_type.show_recipes", "Show Recipes");
         provider.add("gtceu.recipe_logic.insufficient_fuel", "Insufficient Fuel");
@@ -1233,7 +1266,14 @@ public class LangHandler {
         provider.add("gtceu.gui.content.chance_0", "§cNot Consumed§r");
         provider.add("gtceu.gui.content.chance_0_short", "§cNC§r");
         provider.add("gtceu.gui.content.chance_1", "Chance: %s%%");
+        provider.add("gtceu.gui.content.chance_1_logic", "Chance: %s%% (%s)");
         provider.add("gtceu.gui.content.tier_boost", "Tier Chance: +%s%%/tier");
+        provider.add("gtceu.gui.content.count_range", "%s-%sx");
+
+        provider.add("gtceu.chance_logic.or", "OR");
+        provider.add("gtceu.chance_logic.and", "AND");
+        provider.add("gtceu.chance_logic.xor", "XOR");
+        provider.add("gtceu.chance_logic.none", "NONE");
 
         provider.add("gtceu.gui.content.per_tick", "§aConsumed/Produced Per Tick§r");
         provider.add("gtceu.gui.content.tips.per_tick_short", "§a/tick§r");
@@ -1244,10 +1284,14 @@ public class LangHandler {
 
         provider.add("gtceu.gui.me_network.online", "Network Status: §2Online§r");
         provider.add("gtceu.gui.me_network.offline", "Network Status: §4Offline§r");
+        provider.add("gtceu.gui.waiting_list", "Sending Queue:");
         provider.add("gtceu.gui.config_slot", "§fConfig Slot§r");
         provider.add("gtceu.gui.config_slot.set", "§7Click to §bset/select§7 config slot.§r");
         provider.add("gtceu.gui.config_slot.scroll", "§7Scroll wheel to §achange§7 config amount.§r");
         provider.add("gtceu.gui.config_slot.remove", "§7Right click to §4clear§7 config slot.§r");
+        provider.add("gtceu.gui.config_slot.set_only", "§7Click to §bset§7 config slot.§r");
+        provider.add("gtceu.gui.config_slot.auto_pull_managed", "§4Disabled:§7 Managed by Auto-Pull");
+        provider.add("gtceu.gui.me_bus.auto_pull_button", "Click to toggle automatic item pulling from ME");
 
         // Decor Stuff
         replace(provider, "block.gtceu.yellow_stripes_block.a", "Yellow Stripes Block");
@@ -1297,6 +1341,9 @@ public class LangHandler {
         provider.add("gtceu.subtitle.metal_pipe", "Destruction_Metal_Pole_L_Wave_2_0_0.wav");
 
         provider.add("effect.gtceu.weak_poison", "Weak Poison");
+
+        provider.add("gtceu.tooltip.potion.header", "§6Contains effects:");
+        provider.add("gtceu.tooltip.potion.each", "   §e%s %s§r for §c%s§r ticks with a §a%s%%§r chance of happening");
     }
 
     /**

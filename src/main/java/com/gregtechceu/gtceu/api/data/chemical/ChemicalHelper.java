@@ -118,6 +118,20 @@ public class ChemicalHelper {
     }
 
     @Nullable
+    public static MaterialStack getMaterial(Object object) {
+        if (object instanceof MaterialStack materialStack) {
+            return materialStack;
+        } else if (object instanceof UnificationEntry entry) {
+            return getMaterial(entry);
+        } else if (object instanceof ItemStack itemStack) {
+            return getMaterial(itemStack);
+        } else if (object instanceof ItemLike item) {
+            return getMaterial(item);
+        }
+        return null;
+    }
+
+    @Nullable
     public static MaterialStack getMaterial(ItemStack itemStack) {
         if (itemStack.isEmpty()) return null;
         return getMaterial(itemStack.getItem());
@@ -155,7 +169,7 @@ public class ChemicalHelper {
                 if (material.hasProperty(PropertyKey.FLUID)) {
                     FluidProperty property = material.getProperty(PropertyKey.FLUID);
                     FluidStorageKey.allKeys().stream()
-                            .map(key -> property.getStorage().get(key))
+                            .map(key -> property.get(key))
                             .filter(Objects::nonNull)
                             .map(f -> Pair.of(f, TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(f).getPath())))
                             .filter(pair -> allFluidTags.contains(pair.getSecond()))

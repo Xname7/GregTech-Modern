@@ -1,6 +1,7 @@
 package com.gregtechceu.gtceu.common.machine.electric;
 
-import com.gregtechceu.gtceu.api.capability.PlatformEnergyCompat;
+import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.compat.FeCompat;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.item.tool.GTToolType;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -12,11 +13,13 @@ import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Set;
@@ -54,6 +57,14 @@ public class ConverterMachine extends TieredEnergyMachine {
         return (ConverterTrait) energyContainer;
     }
 
+    @Override
+    public int tintColor(int index) {
+        if (index == 2) {
+            return GTValues.VC[getTier()];
+        }
+        return super.tintColor(index);
+    }
+
     //////////////////////////////////////
     // ****** Interaction ******//
     //////////////////////////////////////
@@ -66,16 +77,16 @@ public class ConverterMachine extends TieredEnergyMachine {
                 playerIn.sendSystemMessage(
                         Component.translatable("gtceu.machine.energy_converter.message_conversion_eu",
                                 getConverterTrait().getAmps(), getConverterTrait().getVoltage(),
-                                PlatformEnergyCompat.toNativeLong(
+                                FeCompat.toFeLong(
                                         getConverterTrait().getVoltage() * getConverterTrait().getAmps(),
-                                        PlatformEnergyCompat.ratio(false))));
+                                        FeCompat.ratio(false))));
             } else {
                 setFeToEu(true);
                 playerIn.sendSystemMessage(
                         Component.translatable("gtceu.machine.energy_converter.message_conversion_native",
-                                PlatformEnergyCompat.toNativeLong(
+                                FeCompat.toFeLong(
                                         getConverterTrait().getVoltage() * getConverterTrait().getAmps(),
-                                        PlatformEnergyCompat.ratio(true)),
+                                        FeCompat.ratio(true)),
                                 getConverterTrait().getAmps(), getConverterTrait().getVoltage()));
             }
         }
@@ -96,11 +107,12 @@ public class ConverterMachine extends TieredEnergyMachine {
     }
 
     @Override
-    public ResourceTexture sideTips(Player player, Set<GTToolType> toolTypes, Direction side) {
+    public ResourceTexture sideTips(Player player, BlockPos pos, BlockState state, Set<GTToolType> toolTypes,
+                                    Direction side) {
         if (toolTypes.contains(GTToolType.SOFT_MALLET)) {
             return this.isFeToEu() ? GuiTextures.TOOL_SWITCH_CONVERTER_NATIVE : GuiTextures.TOOL_SWITCH_CONVERTER_EU;
         }
-        return super.sideTips(player, toolTypes, side);
+        return super.sideTips(player, pos, state, toolTypes, side);
     }
 
     @Override

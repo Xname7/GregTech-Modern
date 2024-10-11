@@ -1,57 +1,18 @@
 package com.gregtechceu.gtceu.common.item.armor;
 
 import com.gregtechceu.gtceu.GTCEu;
-import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
-import com.gregtechceu.gtceu.api.capability.IElectricItem;
-import com.gregtechceu.gtceu.utils.input.KeyBind;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-
-import org.jetbrains.annotations.NotNull;
 
 public class AdvancedJetpack extends Jetpack {
 
     public AdvancedJetpack(int energyPerUse, long capacity, int tier) {
         super(energyPerUse, capacity, tier);
-    }
-
-    @Override
-    public void onArmorTick(Level world, Player player, @NotNull ItemStack stack) {
-        IElectricItem cont = GTCapabilityHelper.getElectricItem(stack);
-        if (cont == null) {
-            return;
-        }
-        CompoundTag data = stack.getOrCreateTag();
-        boolean hoverMode = data.contains("hover") && data.getBoolean("hover");
-        byte toggleTimer = data.contains("toggleTimer") ? data.getByte("toggleTimer") : 0;
-
-        if (toggleTimer == 0 && KeyBind.ARMOR_HOVER.isKeyDown(player)) {
-            hoverMode = !hoverMode;
-            toggleTimer = 5;
-            data.putBoolean("hover", hoverMode);
-            if (!world.isClientSide) {
-                if (hoverMode)
-                    player.displayClientMessage(Component.translatable("metaarmor.jetpack.hover.enable"), true);
-                else
-                    player.displayClientMessage(Component.translatable("metaarmor.jetpack.hover.disable"), true);
-            }
-        }
-
-        performFlying(player, hoverMode, stack);
-
-        if (toggleTimer > 0) toggleTimer--;
-
-        data.putBoolean("hover", hoverMode);
-        data.putByte("toggleTimer", toggleTimer);
     }
 
     @Override

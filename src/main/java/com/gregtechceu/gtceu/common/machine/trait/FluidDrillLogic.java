@@ -60,7 +60,7 @@ public class FluidDrillLogic extends RecipeLogic {
             var match = getFluidDrillRecipe();
             if (match != null) {
                 var copied = match.copy(new ContentModifier(match.duration, 0));
-                if (match.matchRecipe(this.machine).isSuccess() && copied.matchTickRecipe(this.machine).isSuccess()) {
+                if (match.matchRecipe(this.machine).isSuccess() && match.matchTickRecipe(this.machine).isSuccess()) {
                     setupRecipe(match);
                 }
             }
@@ -117,14 +117,14 @@ public class FluidDrillLogic extends RecipeLogic {
         machine.afterWorking();
         if (lastRecipe != null) {
             lastRecipe.postWorking(this.machine);
-            lastRecipe.handleRecipeIO(IO.OUT, this.machine);
+            lastRecipe.handleRecipeIO(IO.OUT, this.machine, this.chanceCaches);
         }
         depleteVein();
         // try it again
         var match = getFluidDrillRecipe();
         if (match != null) {
             var copied = match.copy(new ContentModifier(match.duration, 0));
-            if (match.matchRecipe(this.machine).isSuccess() && copied.matchTickRecipe(this.machine).isSuccess()) {
+            if (match.matchRecipe(this.machine).isSuccess() && match.matchTickRecipe(this.machine).isSuccess()) {
                 setupRecipe(match);
                 return;
             }

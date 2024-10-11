@@ -8,10 +8,12 @@ import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.integration.jei.multipage.MultiblockInfoCategory;
 import com.gregtechceu.gtceu.integration.jei.oreprocessing.GTOreProcessingInfoCategory;
 import com.gregtechceu.gtceu.integration.jei.orevein.GTBedrockFluidInfoCategory;
+import com.gregtechceu.gtceu.integration.jei.orevein.GTBedrockOreInfoCategory;
 import com.gregtechceu.gtceu.integration.jei.orevein.GTOreVeinInfoCategory;
 import com.gregtechceu.gtceu.integration.jei.recipe.GTRecipeTypeCategory;
 
 import com.lowdragmc.lowdraglib.LDLib;
+import com.lowdragmc.lowdraglib.Platform;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,10 +24,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.helpers.IJeiHelpers;
-import mezz.jei.api.registration.IModIngredientRegistration;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -55,9 +54,13 @@ public class GTJEIPlugin implements IModPlugin {
             registry.addRecipeCategories(new GTOreProcessingInfoCategory(jeiHelpers));
         registry.addRecipeCategories(new GTOreVeinInfoCategory(jeiHelpers));
         registry.addRecipeCategories(new GTBedrockFluidInfoCategory(jeiHelpers));
+        if (ConfigHolder.INSTANCE.machines.doBedrockOres)
+            registry.addRecipeCategories(new GTBedrockOreInfoCategory(jeiHelpers));
         for (RecipeType<?> recipeType : BuiltInRegistries.RECIPE_TYPE) {
             if (recipeType instanceof GTRecipeType gtRecipeType) {
-                registry.addRecipeCategories(new GTRecipeTypeCategory(jeiHelpers, gtRecipeType));
+                if (Platform.isDevEnv() || gtRecipeType.getRecipeUI().isXEIVisible()) {
+                    registry.addRecipeCategories(new GTRecipeTypeCategory(jeiHelpers, gtRecipeType));
+                }
             }
         }
     }
@@ -65,12 +68,13 @@ public class GTJEIPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(@NotNull IRecipeCatalystRegistration registration) {
         if (LDLib.isReiLoaded() || LDLib.isEmiLoaded()) return;
-        MultiblockInfoCategory.registerRecipeCatalysts(registration);
         GTRecipeTypeCategory.registerRecipeCatalysts(registration);
         if (!ConfigHolder.INSTANCE.compat.hideOreProcessingDiagrams)
             GTOreProcessingInfoCategory.registerRecipeCatalysts(registration);
         GTOreVeinInfoCategory.registerRecipeCatalysts(registration);
         GTBedrockFluidInfoCategory.registerRecipeCatalysts(registration);
+        if (ConfigHolder.INSTANCE.machines.doBedrockOres)
+            GTBedrockOreInfoCategory.registerRecipeCatalysts(registration);
         for (MachineDefinition definition : GTMachines.ELECTRIC_FURNACE) {
             if (definition != null) {
                 registration.addRecipeCatalyst(definition.asStack(), RecipeTypes.SMELTING);
@@ -92,6 +96,8 @@ public class GTJEIPlugin implements IModPlugin {
             GTOreProcessingInfoCategory.registerRecipes(registration);
         GTOreVeinInfoCategory.registerRecipes(registration);
         GTBedrockFluidInfoCategory.registerRecipes(registration);
+        if (ConfigHolder.INSTANCE.machines.doBedrockOres)
+            GTBedrockOreInfoCategory.registerRecipes(registration);
     }
 
     @Override

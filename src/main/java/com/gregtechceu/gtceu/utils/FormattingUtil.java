@@ -152,6 +152,15 @@ public class FormattingUtil {
         return result.toString();
     }
 
+    public static String formatPercent(double number) {
+        return String.format("%,.2f", number);
+    }
+
+    /** To avoids (un)boxing. */
+    public static String formatNumbers(int number) {
+        return NUMBER_FORMAT.format(number);
+    }
+
     public static String formatNumbers(long number) {
         return NUMBER_FORMAT.format(number);
     }
@@ -167,6 +176,11 @@ public class FormattingUtil {
 
     @NotNull
     public static String formatNumber2Places(float number) {
+        return DECIMAL_FORMAT_2F.format(number);
+    }
+
+    @NotNull
+    public static String formatNumber2Places(double number) {
         return DECIMAL_FORMAT_2F.format(number);
     }
 

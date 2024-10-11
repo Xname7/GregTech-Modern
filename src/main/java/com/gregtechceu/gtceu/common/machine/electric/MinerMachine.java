@@ -19,6 +19,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.item.PortableScannerBehavior;
 import com.gregtechceu.gtceu.common.machine.trait.miner.MinerLogic;
+import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.data.lang.LangHandler;
 
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
@@ -46,7 +47,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -98,7 +98,9 @@ public class MinerMachine extends WorkableTieredMachine
 
     protected ItemStackTransfer createChargerItemHandler(Object... args) {
         var transfer = new ItemStackTransfer();
-        transfer.setFilter(item -> GTCapabilityHelper.getElectricItem(item) != null);
+        transfer.setFilter(item -> GTCapabilityHelper.getElectricItem(item) != null ||
+                (ConfigHolder.INSTANCE.compat.energy.nativeEUToPlatformNative &&
+                        GTCapabilityHelper.getForgeEnergyItem(item) != null));
         return transfer;
     }
 
@@ -127,9 +129,11 @@ public class MinerMachine extends WorkableTieredMachine
     }
 
     @Override
-    public void onDrops(List<ItemStack> drops, Player entity) {
-        clearInventory(drops, exportItems.storage);
-        clearInventory(drops, chargerInventory);
+    public void onMachineRemoved() {
+        // Remove the miner pipes below this miner
+        getRecipeLogic().onRemove();
+        clearInventory(exportItems.storage);
+        clearInventory(chargerInventory);
     }
 
     @Override

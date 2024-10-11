@@ -59,7 +59,7 @@ public class OverlayedFluidHandler {
         // search for tanks with same fluid type first
         for (OverlayedTank overlayedTank : this.overlayedTanks) {
             // if the fluid to insert matches the tank, insert the fluid
-            if (overlayedTank.fluid != null && fluid.isFluidEqual(overlayedTank.fluid)) {
+            if (!overlayedTank.isEmpty() && overlayedTank.fluid != null && fluid.isFluidEqual(overlayedTank.fluid)) {
                 long inserted = overlayedTank.tryInsert(fluid, amountToInsert);
                 if (inserted > 0) {
                     totalInserted += inserted;
@@ -113,7 +113,7 @@ public class OverlayedFluidHandler {
 
             OverlayedTank overlayedTank = this.overlayedTanks.get(i);
             FluidStack fluid = overlayedTank.fluid;
-            if (fluid == null || fluid.getAmount() == 0) {
+            if (fluid.isEmpty()) {
                 stb.append("None 0 / ").append(overlayedTank.property.getCapacity());
             } else {
                 stb.append(FluidHelper.getDisplayName(fluid)).append(' ').append(fluid.getAmount())
@@ -152,7 +152,7 @@ public class OverlayedFluidHandler {
          * @return Amount of fluid inserted into this tank
          */
         public long tryInsert(@NotNull FluidStack fluid, long amount) {
-            if (this.fluid == FluidStack.empty()) {
+            if (this.fluid.isEmpty()) {
                 this.fluid = fluid.copy();
                 this.fluid.setAmount(Math.min(this.property.getCapacity(), amount));
                 return this.fluid.getAmount();

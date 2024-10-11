@@ -49,40 +49,50 @@ public class AdvancedNanoMuscleSuite extends NanoMuscleSuite implements IJetpack
         }
 
         CompoundTag data = item.getOrCreateTag();
-        boolean hoverMode = data.contains("hover") && data.getBoolean("hover");
-        byte toggleTimer = data.contains("toggleTimer") ? data.getByte("toggleTimer") : 0;
-        boolean canShare = data.contains("canShare") && data.getBoolean("canShare");
+        // Assume no tags exist if we don't see the enabled tag
+        if (!data.contains("enabled")) {
+            data.putBoolean("enabled", true);
+            data.putBoolean("hover", false);
+            data.putByte("toggleTimer", (byte) 0);
+            data.putBoolean("canShare", false);
+        }
 
-        if (toggleTimer == 0 && KeyBind.ARMOR_HOVER.isKeyDown(player)) {
-            hoverMode = !hoverMode;
-            toggleTimer = 5;
-            data.putBoolean("hover", hoverMode);
-            if (!world.isClientSide) {
-                if (hoverMode)
-                    player.displayClientMessage(Component.translatable("metaarmor.jetpack.hover.enable"), true);
-                else
-                    player.displayClientMessage(Component.translatable("metaarmor.jetpack.hover.disable"), true);
+        boolean jetpackEnabled = data.getBoolean("enabled");
+        boolean hoverMode = data.getBoolean("hover");
+        byte toggleTimer = data.getByte("toggleTimer");
+        boolean canShare = data.getBoolean("canShare");
+
+        String messageKey = null;
+        if (toggleTimer == 0) {
+            if (KeyBind.JETPACK_ENABLE.isKeyDown(player)) {
+                jetpackEnabled = !jetpackEnabled;
+                messageKey = "metaarmor.jetpack.flight." + (jetpackEnabled ? "enable" : "disable");
+                data.putBoolean("enabled", jetpackEnabled);
+            } else if (KeyBind.ARMOR_HOVER.isKeyDown(player)) {
+                hoverMode = !hoverMode;
+                messageKey = "metaarmor.jetpack.hover." + (hoverMode ? "enable" : "disable");
+                data.putBoolean("hover", hoverMode);
+            } else if (KeyBind.ARMOR_CHARGING.isKeyDown(player)) {
+                canShare = !canShare;
+                if (canShare && cont.getCharge() == 0) { // Only allow for charging to be enabled if charge is nonzero
+                    messageKey = "metaarmor.nms.share.error";
+                    canShare = false;
+                } else {
+                    messageKey = "metaarmor.nms.share." + (canShare ? "enable" : "disable");
+                }
+                data.putBoolean("canShare", canShare);
+            }
+
+            if (messageKey != null) {
+                toggleTimer = 5;
+                if (!world.isClientSide) player.displayClientMessage(Component.translatable(messageKey), true);
             }
         }
 
-        if (toggleTimer == 0 && KeyBind.ARMOR_CHARGING.isKeyDown(player)) {
-            canShare = !canShare;
-            toggleTimer = 5;
-            if (!world.isClientSide) {
-                if (canShare && cont.getCharge() == 0)
-                    player.displayClientMessage(Component.translatable("metaarmor.nms.share.error"), true);
-                else if (canShare)
-                    player.displayClientMessage(Component.translatable("metaarmor.nms.share.enable"), true);
-                else
-                    player.displayClientMessage(Component.translatable("metaarmor.nms.share.disable"), true);
-            }
+        if (toggleTimer > 0) toggleTimer--;
+        data.putByte("toggleTimer", toggleTimer);
 
-            // Only allow for charging to be enabled if charge is nonzero
-            canShare = canShare && (cont.getCharge() != 0);
-            data.putBoolean("canShare", canShare);
-        }
-
-        performFlying(player, hoverMode, item);
+        performFlying(player, jetpackEnabled, hoverMode, item);
 
         // Charging mechanics
         if (canShare && !world.isClientSide) {
@@ -126,12 +136,6 @@ public class AdvancedNanoMuscleSuite extends NanoMuscleSuite implements IJetpack
             }
         }
 
-        if (toggleTimer > 0) toggleTimer--;
-
-        data.putBoolean("canShare", canShare);
-        data.putBoolean("hover", hoverMode);
-        data.putByte("toggleTimer", toggleTimer);
-
         timer++;
         if (timer == Long.MAX_VALUE)
             timer = 0;
@@ -141,21 +145,22 @@ public class AdvancedNanoMuscleSuite extends NanoMuscleSuite implements IJetpack
     public void addInfo(ItemStack itemStack, List<Component> lines) {
         CompoundTag data = itemStack.getOrCreateTag();
         Component state;
-        if (data.contains("canShare")) {
-            state = data.getBoolean("canShare") ? Component.translatable("metaarmor.hud.status.enabled") :
-                    Component.translatable("metaarmor.hud.status.disabled");
-        } else {
-            state = Component.translatable("metaarmor.hud.status.disabled");
-        }
+        boolean enabled = !data.contains("enabled") || data.getBoolean("enabled");
+        state = enabled ? Component.translatable("metaarmor.hud.status.enabled") :
+                Component.translatable("metaarmor.hud.status.disabled");
+        lines.add(Component.translatable("metaarmor.hud.engine_enabled", state));
+
+        boolean canShare = data.contains("canShare") && data.getBoolean("canShare");
+        state = canShare ? Component.translatable("metaarmor.hud.status.enabled") :
+                Component.translatable("metaarmor.hud.status.disabled");
         lines.add(Component.translatable("metaarmor.energy_share.tooltip", state));
         lines.add(Component.translatable("metaarmor.energy_share.tooltip.guide"));
 
-        Component status = Component.translatable("metaarmor.hud.status.disabled");
-        if (data.contains("hover")) {
-            if (data.getBoolean("hover"))
-                status = Component.translatable("metaarmor.hud.status.enabled");
-        }
-        lines.add(Component.translatable("metaarmor.hud.hover_mode", status));
+        boolean hover = data.contains("hover") && data.getBoolean("hover");
+        state = hover ? Component.translatable("metaarmor.hud.status.enabled") :
+                Component.translatable("metaarmor.hud.status.disabled");
+        lines.add(Component.translatable("metaarmor.hud.hover_mode", state));
+
         super.addInfo(itemStack, lines);
     }
 
@@ -199,6 +204,13 @@ public class AdvancedNanoMuscleSuite extends NanoMuscleSuite implements IJetpack
         if (!cont.canUse(energyPerUse)) return;
         CompoundTag data = item.getTag();
         if (data != null) {
+            if (data.contains("enabled")) {
+                Component status = (data.getBoolean("enabled") ?
+                        Component.translatable("metaarmor.hud.status.enabled") :
+                        Component.translatable("metaarmor.hud.status.disabled"));
+                Component result = Component.translatable("metaarmor.hud.engine_enabled", status);
+                this.HUD.newString(result);
+            }
             if (data.contains("canShare")) {
                 String status = data.getBoolean("canShare") ? "metaarmor.hud.status.enabled" :
                         "metaarmor.hud.status.disabled";

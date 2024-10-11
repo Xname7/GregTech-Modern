@@ -14,6 +14,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.Tags;
 
 import java.util.function.Consumer;
 
@@ -59,6 +60,8 @@ public class CraftingRecipeLoader {
                 "XXX", "XYX", "XXX", 'X', new UnificationEntry(foil, Zinc), 'Y', new UnificationEntry(plate, Olivine));
         VanillaRecipeHelper.addShapedRecipe(provider, "ore_dictionary_filter_emerald", ORE_DICTIONARY_FILTER.asStack(),
                 "XXX", "XYX", "XXX", 'X', new UnificationEntry(foil, Zinc), 'Y', new UnificationEntry(plate, Emerald));
+        VanillaRecipeHelper.addShapedRecipe(provider, "fluid_tag_filter", TAG_FLUID_FILTER.asStack(),
+                "XXX", "XYX", "XXX", 'X', new UnificationEntry(foil, Zinc), 'Y', new UnificationEntry(plate, Amethyst));
 
         // TODO smart filter
         // VanillaRecipeHelper.addShapedRecipe(provider, "smart_item_filter_olivine", SMART_FILTER.asStack(), "XEX",
@@ -91,8 +94,6 @@ public class CraftingRecipeLoader {
         // Items.PAPER, 'R', new UnificationEntry(springSmall, Iron), 'B', new UnificationEntry(bolt, Iron), 'S', new
         // UnificationEntry(screw, Iron), 'W', new UnificationEntry(plate, Wood));
 
-        VanillaRecipeHelper.addShapelessRecipe(provider, "rubber_wood_planks", GTBlocks.RUBBER_PLANK.asStack(4),
-                GTBlocks.RUBBER_LOG.asStack());
         VanillaRecipeHelper.addShapedRecipe(provider, "treated_wood_planks", GTBlocks.TREATED_WOOD_PLANK.asStack(8),
                 "PPP", "PBP", "PPP", 'P', ItemTags.PLANKS, 'B', Creosote.getBucket());
 
@@ -129,7 +130,7 @@ public class CraftingRecipeLoader {
                 'W', SILICON_WAFER.asStack(), 'G', new ItemStack(Blocks.GLASS_PANE), 'C', CustomTags.LV_CIRCUITS, 'P',
                 CARBON_FIBER_PLATE.asStack());
         VanillaRecipeHelper.addShapedRecipe(provider, "solar_panel_ulv", COVER_SOLAR_PANEL_ULV.asStack(), "WGW", "CAC",
-                "P P", 'W', PHOSPHORUS_WAFER.asStack(), 'G', CustomTags.GLASS_PANES, 'C', CustomTags.HV_CIRCUITS, 'P',
+                "P P", 'W', PHOSPHORUS_WAFER.asStack(), 'G', Tags.Items.GLASS_PANES, 'C', CustomTags.HV_CIRCUITS, 'P',
                 ChemicalHelper.get(plate, GalliumArsenide), 'A', ChemicalHelper.get(wireGtQuadruple, Graphene));
         VanillaRecipeHelper.addShapedRecipe(provider, "solar_panel_lv", COVER_SOLAR_PANEL_LV.asStack(), "WGW", "CAC",
                 "P P", 'W', NAQUADAH_WAFER.asStack(), 'G', GTBlocks.CASING_TEMPERED_GLASS.asStack(), 'C',

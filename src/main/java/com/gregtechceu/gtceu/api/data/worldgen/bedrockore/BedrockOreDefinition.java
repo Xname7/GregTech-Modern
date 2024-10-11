@@ -4,7 +4,6 @@ import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.worldgen.BiomeWeightModifier;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
-import com.gregtechceu.gtceu.common.data.GTOres;
 import com.gregtechceu.gtceu.utils.RegistryUtil;
 
 import net.minecraft.core.Holder;
@@ -139,6 +138,14 @@ public class BedrockOreDefinition {
         };
     }
 
+    public List<Integer> getAllChances() {
+        return materials().stream().map(Pair::getSecond).toList();
+    }
+
+    public List<Material> getAllMaterials() {
+        return materials().stream().map(Pair::getFirst).toList();
+    }
+
     public static Builder builder(ResourceLocation name) {
         return new Builder(name);
     }
@@ -220,7 +227,7 @@ public class BedrockOreDefinition {
         public BedrockOreDefinition register() {
             var definition = new BedrockOreDefinition(weight, size, yield, depletionAmount, depletionChance,
                     depletedYield, materials, biomes, dimensions);
-            GTOres.toReRegisterBedrock.put(name, definition);
+            GTRegistries.BEDROCK_ORE_DEFINITIONS.registerOrOverride(name, definition);
             return definition;
         }
     }

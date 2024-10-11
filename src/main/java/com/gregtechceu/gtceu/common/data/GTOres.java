@@ -4,7 +4,6 @@ import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.data.worldgen.*;
-import com.gregtechceu.gtceu.api.data.worldgen.bedrockore.BedrockOreDefinition;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.indicators.SurfaceIndicatorGenerator;
 import com.gregtechceu.gtceu.api.data.worldgen.generator.veins.NoopVeinGenerator;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
@@ -54,7 +53,6 @@ public class GTOres {
     private static int largestIndicatorOffset = 0;
 
     private static final Map<ResourceLocation, GTOreDefinition> toReRegister = new HashMap<>();
-    public static final Map<ResourceLocation, BedrockOreDefinition> toReRegisterBedrock = new HashMap<>();
 
     //////////////////////////////////////
     // ******** End Vein *********//
@@ -132,7 +130,7 @@ public class GTOres {
                     .placement(SurfaceIndicatorGenerator.IndicatorPlacement.ABOVE)));
 
     public static final GTOreDefinition SCHEELITE_VEIN = create("scheelite_vein", vein -> vein
-            .clusterSize(UniformInt.of(32, 40)).density(0.7f).weight(20)
+            .clusterSize(UniformInt.of(50, 64)).density(0.7f).weight(20)
             .layer(WorldGenLayers.ENDSTONE)
             .heightRangeUniform(20, 60)
             .biomes(BiomeTags.IS_END)
@@ -187,7 +185,7 @@ public class GTOres {
                     .placement(SurfaceIndicatorGenerator.IndicatorPlacement.ABOVE)));
 
     public static final GTOreDefinition BERYLLIUM_VEIN = create("beryllium_vein", vein -> vein
-            .clusterSize(UniformInt.of(32, 40)).density(0.75f).weight(30)
+            .clusterSize(UniformInt.of(50, 64)).density(0.75f).weight(30)
             .layer(WorldGenLayers.NETHERRACK)
             .heightRangeUniform(5, 30)
             .biomes(BiomeTags.IS_NETHER)
@@ -215,7 +213,7 @@ public class GTOres {
                     .placement(SurfaceIndicatorGenerator.IndicatorPlacement.BELOW)));
 
     public static final GTOreDefinition MANGANESE_VEIN = create("manganese_vein", vein -> vein
-            .clusterSize(UniformInt.of(32, 40)).density(0.75f).weight(20)
+            .clusterSize(UniformInt.of(50, 64)).density(0.75f).weight(20)
             .layer(WorldGenLayers.NETHERRACK)
             .heightRangeUniform(20, 30)
             .biomes(BiomeTags.IS_NETHER)
@@ -234,7 +232,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Wulfenite).size(2, 4))
                             .layer(l -> l.weight(2).mat(Molybdenite).size(1, 1))
                             .layer(l -> l.weight(1).mat(Molybdenum).size(1, 1))
@@ -251,7 +248,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Bastnasite).size(2, 4))
                             .layer(l -> l.weight(1).mat(Monazite).size(1, 1))
                             .layer(l -> l.weight(1).mat(Neodymium).size(1, 1))
@@ -267,7 +263,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState).size(2, 4))
                             .layer(l -> l.weight(3).mat(NetherQuartz).size(2, 4))
                             .layer(l -> l.weight(1).mat(Quartzite).size(1, 1))
                             .build()))
@@ -282,7 +277,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Redstone).size(2, 4))
                             .layer(l -> l.weight(2).mat(Ruby).size(1, 1))
                             .layer(l -> l.weight(1).mat(Cinnabar).size(1, 1))
@@ -298,7 +292,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Saltpeter).size(2, 4))
                             .layer(l -> l.weight(2).mat(Diatomite).size(1, 1))
                             .layer(l -> l.weight(2).mat(Electrotine).size(1, 1))
@@ -315,7 +308,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Sulfur).size(2, 4))
                             .layer(l -> l.weight(2).mat(Pyrite).size(1, 1))
                             .layer(l -> l.weight(1).mat(Sphalerite).size(1, 1))
@@ -351,7 +343,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_NETHER)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(NETHER_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.NETHERRACK::defaultBlockState))
                             .layer(l -> l.weight(3).mat(BlueTopaz).size(2, 4))
                             .layer(l -> l.weight(2).mat(Topaz).size(1, 1))
                             .layer(l -> l.weight(2).mat(Chalcocite).size(1, 1))
@@ -377,7 +368,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Apatite).size(2, 4))
                             .layer(l -> l.weight(2).mat(TricalciumPhosphate).size(1, 1))
                             .layer(l -> l.weight(1).mat(Pyrochlore).size(1, 1))
@@ -444,7 +434,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Galena).size(2, 4))
                             .layer(l -> l.weight(2).mat(Silver).size(1, 1))
                             .layer(l -> l.weight(1).mat(Lead).size(1, 1))
@@ -459,7 +448,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            .layer(l -> l.weight(2).state(Blocks.SAND::defaultBlockState))
                             .layer(l -> l.weight(3).mat(CassiteriteSand).size(2, 4))
                             .layer(l -> l.weight(2).mat(GarnetSand).size(1, 1))
                             .layer(l -> l.weight(2).mat(Asbestos).size(1, 1))
@@ -469,7 +457,7 @@ public class GTOres {
                     .surfaceRock(GarnetSand)));
 
     public static final GTOreDefinition GARNET_VEIN = create("garnet_vein", vein -> vein
-            .clusterSize(UniformInt.of(32, 40)).density(0.75f).weight(40)
+            .clusterSize(UniformInt.of(50, 64)).density(0.75f).weight(40)
             .layer(WorldGenLayers.STONE)
             .heightRangeUniform(-10, 50)
             .biomes(BiomeTags.IS_OVERWORLD)
@@ -537,7 +525,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            .layer(l -> l.weight(2).state(Blocks.SAND::defaultBlockState))
                             .layer(l -> l.weight(3).mat(BasalticMineralSand).size(2, 4))
                             .layer(l -> l.weight(2).mat(GraniticMineralSand).size(1, 1))
                             .layer(l -> l.weight(2).mat(FullersEarth).size(1, 1))
@@ -553,7 +540,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Garnierite).size(2, 4))
                             .layer(l -> l.weight(2).mat(Nickel).size(1, 1))
                             .layer(l -> l.weight(2).mat(Cobaltite).size(1, 1))
@@ -569,7 +555,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(RockSalt).size(2, 4))
                             .layer(l -> l.weight(2).mat(Salt).size(1, 1))
                             .layer(l -> l.weight(1).mat(Lepidolite).size(1, 1))
@@ -673,7 +658,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Kyanite).size(2, 4))
                             .layer(l -> l.weight(2).mat(Mica).size(1, 1))
                             .layer(l -> l.weight(2).mat(Bauxite).size(1, 1))
@@ -690,7 +674,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Bentonite).size(2, 4))
                             .layer(l -> l.weight(2).mat(Magnetite).size(1, 1))
                             .layer(l -> l.weight(2).mat(Olivine).size(1, 1))
@@ -722,7 +705,6 @@ public class GTOres {
             .biomes(BiomeTags.IS_OVERWORLD)
             .layeredVeinGenerator(generator -> generator
                     .withLayerPattern(() -> GTLayerPattern.builder(OVERWORLD_RULES)
-                            // .layer(l -> l.weight(2).state(Blocks.STONE::defaultBlockState))
                             .layer(l -> l.weight(3).mat(Almandine).size(2, 4))
                             .layer(l -> l.weight(2).mat(Pyrope).size(1, 1))
                             .layer(l -> l.weight(1).mat(Sapphire).size(1, 1))

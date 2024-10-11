@@ -1,7 +1,6 @@
 package com.gregtechceu.gtceu.data.recipe.serialized.chemistry;
 
 import com.gregtechceu.gtceu.common.data.GTBlocks;
-import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.ItemStack;
@@ -270,8 +269,8 @@ public class SeparationRecipes {
                 .inputItems(dust, Stone)
                 .chancedOutput(dust, Quartzite, 2500, 0)
                 .chancedOutput(dust, PotassiumFeldspar, 2500, 0)
-                .chancedOutput(dust, Marble, 2222, 0)
-                .chancedOutput(dust, Biotite, 1111, 0)
+                .chancedOutput(dust, Marble, "2/9", 0)
+                .chancedOutput(dust, Biotite, "1/9", 0)
                 .chancedOutput(dust, MetalMixture, 825, 80)
                 .chancedOutput(dust, Sodalite, 550, 55)
                 .save(provider);
@@ -280,8 +279,8 @@ public class SeparationRecipes {
                 .inputItems(dust, MetalMixture)
                 .chancedOutput(dust, Hematite, 2500, 0)
                 .chancedOutput(dust, Bauxite, 2500, 0)
-                .chancedOutput(dust, Pyrolusite, 2222, 0)
-                .chancedOutput(dust, Barite, 1111, 0)
+                .chancedOutput(dust, Pyrolusite, "2/9", 0)
+                .chancedOutput(dust, Barite, "1/9", 0)
                 .chancedOutput(dust, Chromite, 825, 80)
                 .chancedOutput(dust, Ilmenite, 550, 55)
                 .save(provider);
@@ -315,6 +314,12 @@ public class SeparationRecipes {
                 .outputItems(dust, Salt, 2)
                 .outputFluids(Water.getFluid(1000))
                 .save(provider);
+
+        CENTRIFUGE_RECIPES.recipeBuilder("muddy_mangrove_roots")
+                .inputItems(new ItemStack(Blocks.MUDDY_MANGROVE_ROOTS))
+                .outputItems(new ItemStack(Blocks.MANGROVE_ROOTS))
+                .outputItems(new ItemStack(Blocks.MUD))
+                .duration(20).EUt(1).save(provider);
 
         // Electrolyzer
         ELECTROLYZER_RECIPES.recipeBuilder("sodium_bisulfate_electrolysis")
@@ -479,9 +484,19 @@ public class SeparationRecipes {
                 .outputFluids(Helium.getFluid(200))
                 .duration(64).EUt(64).save(provider);
 
-        EXTRACTOR_RECIPES.recipeBuilder("seed_oil_from_tag_seeds")
+        // Disabling because it conflicts with the below recipes
+        // Pack devs should make their own recipes instead
+        /*
+         * EXTRACTOR_RECIPES.recipeBuilder("seed_oil_from_tag_seeds")
+         * .duration(32).EUt(2)
+         * .inputItems(Tags.Items.SEEDS)
+         * .outputFluids(SeedOil.getFluid(10))
+         * .save(provider);
+         */
+
+        EXTRACTOR_RECIPES.recipeBuilder("seed_oil_from_wheat_seeds")
                 .duration(32).EUt(2)
-                .inputItems(CustomTags.SEEDS)
+                .inputItems(new ItemStack(Items.WHEAT_SEEDS))
                 .outputFluids(SeedOil.getFluid(10))
                 .save(provider);
 
@@ -498,6 +513,11 @@ public class SeparationRecipes {
         EXTRACTOR_RECIPES.recipeBuilder("seed_oil_from_pumpkin").duration(32).EUt(2)
                 .inputItems(new ItemStack(Items.PUMPKIN_SEEDS, 1))
                 .outputFluids(SeedOil.getFluid(6))
+                .save(provider);
+
+        EXTRACTOR_RECIPES.recipeBuilder("seed_oil_from_torchflower").duration(32).EUt(2)
+                .inputItems(new ItemStack(Items.TORCHFLOWER_SEEDS, 1))
+                .outputFluids(SeedOil.getFluid(8))
                 .save(provider);
 
         EXTRACTOR_RECIPES.recipeBuilder("fish_oil_from_cod").duration(16).EUt(4)

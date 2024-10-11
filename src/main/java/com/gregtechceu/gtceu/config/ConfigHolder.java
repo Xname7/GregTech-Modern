@@ -125,6 +125,9 @@ public class ConfigHolder {
                 "Default: false" })
         public boolean harderCircuitRecipes = false;
         @Configurable
+        @Configurable.Comment({ "Whether to nerf machine controller recipes.", "Default: false" })
+        public boolean hardMultiRecipes = false; // default false
+        @Configurable
         @Configurable.Comment({
                 "Whether tools should have enchants or not. Like the flint sword getting fire aspect.",
                 "Default: true" })
@@ -389,6 +392,13 @@ public class ConfigHolder {
         @Configurable.Comment({ "Minimum distance betweeb Long Distance Fluid Pipe Endpoints", "Default: 50" })
         public int ldFluidPipeMinDistance = 50;
 
+        @Configurable
+        @Configurable.Comment({ "Whether non owners can open a machine gui", "Default: false" })
+        public boolean machineOwnerGUI = true;
+        @Configurable
+        @Configurable.Comment({ "Whether non owners can break a machine", "Default: false" })
+        public boolean machineOwnerBreak = true;
+
         /**
          * <strong>Addons mods should not reference this config directly.</strong>
          * Use {@link GTCEuAPI#isHighTier()} instead.
@@ -412,11 +422,87 @@ public class ConfigHolder {
 
         @Configurable
         @Configurable.Comment({
-                "Let Buffer has more ability.",
-                "When enabled it, Buffer will can used to assemble line and so on.",
+                "Let Dual Hatch has more ability. (DEPRECATED: does nothing now)",
+                "When enabled it, Dual Hatch will can used to assemble line and so on.",
                 "Need restart Minecraft to apply."
         })
-        public boolean enableMoreBufferAbility = false;
+        public boolean enableMoreDualHatchAbility = false;
+
+        @Configurable
+        @Configurable.Comment({
+                "Default maximum parallel of steam multiblocks",
+                "Default: 8"
+        })
+        public int steamMultiParallelAmount = 8;
+
+        @Configurable
+        @Configurable.Comment("Small Steam Boiler Options")
+        public SmallBoilers smallBoilers = new SmallBoilers();
+        @Configurable
+        @Configurable.Comment("Large Steam Boiler Options")
+        public LargeBoilers largeBoilers = new LargeBoilers();
+
+        public static class SmallBoilers {
+
+            @Configurable
+            @Configurable.Comment({ "The amount of steam a Steam Solid Boiler produces per second at max temperature.",
+                    "Default: 120" })
+            public int solidBoilerBaseOutput = 120;
+            @Configurable
+            @Configurable.Comment({
+                    "The amount of steam a High Pressure Steam Solid Boiler produces per second at max temperature.",
+                    "Default: 300" })
+            public int hpSolidBoilerBaseOutput = 300;
+            @Configurable
+            @Configurable.Comment({ "The amount of steam a Steam Liquid Boiler produces per second at max temperature.",
+                    "Default: 240" })
+            public int liquidBoilerBaseOutput = 240;
+            @Configurable
+            @Configurable.Comment({
+                    "The amount of steam a High Pressure Steam Liquid Boiler produces per second at max temperature.",
+                    "Default: 600" })
+            public int hpLiquidBoilerBaseOutput = 600;
+            @Configurable
+            @Configurable.Comment({ "The amount of steam a Steam Solar Boiler produces per second at max temperature.",
+                    "Default: 120" })
+            public int solarBoilerBaseOutput = 120;
+            @Configurable
+            @Configurable.Comment({
+                    "The amount of steam a High Pressure Steam Solar Boiler produces per second at max temperature.",
+                    "Default: 360" })
+            public int hpSolarBoilerBaseOutput = 360;
+        }
+
+        public static class LargeBoilers {
+
+            @Configurable
+            @Configurable.Comment({ "The conversion rate between water and steam in Large Boilers.", "Default: 160" })
+            public int steamPerWater = 160;
+            @Configurable
+            @Configurable.Comment({ "The max temperature of the Large Bronze Boiler.", "Default: 800" })
+            public int bronzeBoilerMaxTemperature = 800;
+            @Configurable
+            @Configurable.Comment({ "The heat speed of the Large Bronze Boiler.", "Default: 1" })
+            public int bronzeBoilerHeatSpeed = 1;
+            @Configurable
+            @Configurable.Comment({ "The max temperature of the Large Steel Boiler.", "Default: 1800" })
+            public int steelBoilerMaxTemperature = 1800;
+            @Configurable
+            @Configurable.Comment({ "The heat speed of the Large Steel Boiler.", "Default: 1" })
+            public int steelBoilerHeatSpeed = 1;
+            @Configurable
+            @Configurable.Comment({ "The max temperature of the Large Titanium Boiler.", "Default: 3200" })
+            public int titaniumBoilerMaxTemperature = 3200;
+            @Configurable
+            @Configurable.Comment({ "The heat speed of the Large Titanium Boiler.", "Default: 1" })
+            public int titaniumBoilerHeatSpeed = 1;
+            @Configurable
+            @Configurable.Comment({ "The max temperature of the Large Tungstensteel Boiler.", "Default: 6400" })
+            public int tungstensteelBoilerMaxTemperature = 6400;
+            @Configurable
+            @Configurable.Comment({ "The heat speed of the Large Tungstensteel Boiler.", "Default: 2" })
+            public int tungstensteelBoilerHeatSpeed = 2;
+        }
     }
 
     public static class ToolConfigs {

@@ -5,7 +5,9 @@ import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.api.data.worldgen.GTOreDefinition;
 import com.gregtechceu.gtceu.api.data.worldgen.bedrockfluid.BedrockFluidDefinition;
+import com.gregtechceu.gtceu.api.data.worldgen.bedrockore.BedrockOreDefinition;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
+import com.gregtechceu.gtceu.client.ClientProxy;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
@@ -71,6 +73,17 @@ public class GTOreVeinWidget extends WidgetGroup {
         setupText(fluid);
     }
 
+    public GTOreVeinWidget(BedrockOreDefinition bedrockOre) {
+        super(0, 0, width, 140);
+        this.name = getBedrockOreName(bedrockOre);
+        this.weight = bedrockOre.weight();
+        this.dimensionFilter = bedrockOre.dimensionFilter();
+        this.range = "NULL";
+        setClientSideWidget();
+        setupBaseGui(bedrockOre);
+        setupText(bedrockOre);
+    }
+
     @SuppressWarnings("all")
     private String range(GTOreDefinition oreDefinition) {
         HeightProvider height = oreDefinition.range().height;
@@ -91,9 +104,10 @@ public class GTOreVeinWidget extends WidgetGroup {
         for (int i = 0; i < n; i++) {
             SlotWidget oreSlot = new SlotWidget(new ItemStackTransfer(containedOresAsItemStacks), i, x, 18, false,
                     false);
-            int finalI = i;
+            int finalIndex = i;
             oreSlot.setOnAddedTooltips((stack, tooltips) -> tooltips.add(Component
-                    .nullToEmpty(LocalizationUtils.format("gtceu.jei.ore_vein_diagram.chance", chances.get(finalI)))));
+                    .nullToEmpty(
+                            LocalizationUtils.format("gtceu.jei.ore_vein_diagram.chance", chances.get(finalIndex)))));
             oreSlot.setIngredientIO(IngredientIO.OUTPUT);
             addWidget(oreSlot);
             x += 18;
@@ -106,6 +120,25 @@ public class GTOreVeinWidget extends WidgetGroup {
                 new FluidStorage(FluidStack.create(storedFluid, 1000)), 51, 18, false, false);
         fluidSlot.setIngredientIO(IngredientIO.OUTPUT);
         addWidget(fluidSlot);
+    }
+
+    private void setupBaseGui(BedrockOreDefinition bedrockOreDefinition) {
+        NonNullList<ItemStack> containedOresAsItemStacks = NonNullList.create();
+        List<Integer> chances = bedrockOreDefinition.getAllChances();
+        containedOresAsItemStacks.addAll(getRawMaterialList(bedrockOreDefinition));
+        int n = containedOresAsItemStacks.size();
+        int x = (width - 18 * n) / 2;
+        for (int i = 0; i < n; i++) {
+            SlotWidget oreSlot = new SlotWidget(new ItemStackTransfer(containedOresAsItemStacks), i, x, 18, false,
+                    false);
+            int finalIndex = i;
+            oreSlot.setOnAddedTooltips((stack, tooltips) -> tooltips.add(Component
+                    .nullToEmpty(
+                            LocalizationUtils.format("gtceu.jei.ore_vein_diagram.chance", chances.get(finalIndex)))));
+            oreSlot.setIngredientIO(IngredientIO.OUTPUT);
+            addWidget(oreSlot);
+            x += 18;
+        }
     }
 
     private void setupText(GTOreDefinition ignored) {
@@ -134,6 +167,17 @@ public class GTOreVeinWidget extends WidgetGroup {
         setupDimensionMarker(60);
     }
 
+    private void setupText(BedrockOreDefinition ignored) {
+        addWidget(new ImageWidget(5, 0, width - 10, 16,
+                new TextTexture("gtceu.jei.bedrock_ore." + name).setType(TextTexture.TextType.LEFT_ROLL)
+                        .setWidth(width - 10)));
+        addWidget(new LabelWidget(5, 40,
+                LocalizationUtils.format("gtceu.jei.ore_vein_diagram.weight", weight)));
+        addWidget(new LabelWidget(5, 50,
+                LocalizationUtils.format("gtceu.jei.ore_vein_diagram.dimensions")));
+        setupDimensionMarker(60);
+    }
+
     private void setupDimensionMarker(int yPosition) {
         if (this.dimensionFilter != null) {
             int interval = 2;
@@ -148,13 +192,13 @@ public class GTOreVeinWidget extends WidgetGroup {
             var transfer = new ItemStackTransfer(dimMarkers.length);
             for (int i = 0; i < dimMarkers.length; i++) {
                 var dimMarker = dimMarkers[i];
-                var markerItem = dimMarker.getMarker();
+                var icon = dimMarker.getIcon();
                 int row = Math.floorDiv(i, rowSlots);
                 SlotWidget dimSlot = new SlotWidget(transfer, i,
                         5 + (16 + interval) * (i - row * rowSlots),
                         yPosition + 18 * row,
-                        false, false).setIngredientIO(IngredientIO.INPUT);
-                transfer.setStackInSlot(i, markerItem);
+                        false, false).setIngredientIO(IngredientIO.CATALYST);
+                transfer.setStackInSlot(i, icon);
                 if (ConfigHolder.INSTANCE.compat.showDimensionTier) {
                     dimSlot.setOverlay(
                             new TextTexture("T" + (dimMarker.tier >= DimensionMarker.MAX_TIER ? "?" : dimMarker.tier))
@@ -189,13 +233,24 @@ public class GTOreVeinWidget extends WidgetGroup {
                 .toList();
     }
 
+    public static List<ItemStack> getRawMaterialList(BedrockOreDefinition bedrockOreDefinition) {
+        return bedrockOreDefinition.materials().stream()
+                .map(entry -> ChemicalHelper.get(TagPrefix.rawOre, entry.getFirst()))
+                .toList();
+    }
+
     public String getOreName(GTOreDefinition oreDefinition) {
-        ResourceLocation id = GTRegistries.ORE_VEINS.getKey(oreDefinition);
+        ResourceLocation id = ClientProxy.CLIENT_ORE_VEINS.inverse().get(oreDefinition);
         return id.getPath();
     }
 
     public String getFluidName(BedrockFluidDefinition fluid) {
-        ResourceLocation id = GTRegistries.BEDROCK_FLUID_DEFINITIONS.getKey(fluid);
+        ResourceLocation id = ClientProxy.CLIENT_FLUID_VEINS.inverse().get(fluid);
+        return id.getPath();
+    }
+
+    public String getBedrockOreName(BedrockOreDefinition oreDefinition) {
+        ResourceLocation id = ClientProxy.CLIENT_BEDROCK_ORE_VEINS.inverse().get(oreDefinition);
         return id.getPath();
     }
 }

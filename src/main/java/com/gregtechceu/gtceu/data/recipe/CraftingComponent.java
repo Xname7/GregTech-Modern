@@ -1,5 +1,6 @@
 package com.gregtechceu.gtceu.data.recipe;
 
+import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
@@ -10,9 +11,14 @@ import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
+import com.gregtechceu.gtceu.data.recipe.event.CraftingComponentModificationEvent;
+import com.gregtechceu.gtceu.integration.kjs.GTCEuStartupEvents;
+import com.gregtechceu.gtceu.integration.kjs.events.CraftingComponentsEventJS;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.Tags;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -20,12 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.gregtechceu.gtceu.api.GTValues.*;
-import static com.gregtechceu.gtceu.common.data.GTMaterials.Iridium;
-import static com.gregtechceu.gtceu.common.data.GTMaterials.Naquadah;
-import static com.gregtechceu.gtceu.common.data.GTMaterials.Neutronium;
-import static com.gregtechceu.gtceu.common.data.GTMaterials.NiobiumTitanium;
-import static com.gregtechceu.gtceu.common.data.GTMaterials.Titanium;
-import static com.gregtechceu.gtceu.common.data.GTMaterials.TungstenSteel;
 
 public class CraftingComponent {
 
@@ -44,6 +44,7 @@ public class CraftingComponent {
     public static Component CABLE_TIER_UP;
     public static Component CABLE_TIER_UP_DOUBLE;
     public static Component CABLE_TIER_UP_QUAD;
+    public static Component CABLE_TIER_UP_OCT;
     public static Component CABLE_TIER_UP_HEX;
     public static Component CASING;
     public static Component HULL;
@@ -75,6 +76,9 @@ public class CraftingComponent {
     public static Component POWER_COMPONENT;
     public static Component VOLTAGE_COIL;
     public static Component SPRING;
+    public static Component CRATE;
+    public static Component DRUM;
+    public static Component FRAME;
 
     public static final Map<BlastProperty.GasTier, FluidIngredient> EBF_GASES = new EnumMap<>(
             BlastProperty.GasTier.class);
@@ -140,6 +144,7 @@ public class CraftingComponent {
                 { 6, GTItems.ELECTRIC_PUMP_LuV.asStack() },
                 { 7, GTItems.ELECTRIC_PUMP_ZPM.asStack() },
                 { 8, GTItems.ELECTRIC_PUMP_UV.asStack() },
+                { FALLBACK, GTItems.ELECTRIC_PUMP_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -164,6 +169,7 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.wireGtSingle, GTMaterials.Osmium) },
                 { 7, new UnificationEntry(TagPrefix.wireGtSingle, GTMaterials.Osmium) },
                 { 8, new UnificationEntry(TagPrefix.wireGtSingle, GTMaterials.Osmium) },
+                { 9, new UnificationEntry(TagPrefix.wireGtSingle, GTMaterials.Osmium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -178,6 +184,8 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.NiobiumTitanium) },
                 { 7, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.YttriumBariumCuprate) },
+                { 9, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -192,6 +200,8 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.wireGtOctal, GTMaterials.NiobiumTitanium) },
                 { 7, new UnificationEntry(TagPrefix.wireGtOctal, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.wireGtOctal, GTMaterials.YttriumBariumCuprate) },
+                { 9, new UnificationEntry(TagPrefix.wireGtOctal, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.wireGtOctal, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -206,6 +216,8 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.wireGtHex, GTMaterials.NiobiumTitanium) },
                 { 7, new UnificationEntry(TagPrefix.wireGtHex, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.wireGtHex, GTMaterials.YttriumBariumCuprate) },
+                { 9, new UnificationEntry(TagPrefix.wireGtHex, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.wireGtHex, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -221,6 +233,7 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.cableGtSingle, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.cableGtSingle, GTMaterials.YttriumBariumCuprate) },
                 { 9, new UnificationEntry(TagPrefix.cableGtSingle, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.cableGtSingle, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -236,6 +249,7 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.cableGtDouble, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.cableGtDouble, GTMaterials.YttriumBariumCuprate) },
                 { 9, new UnificationEntry(TagPrefix.cableGtDouble, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.cableGtDouble, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -251,6 +265,7 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.YttriumBariumCuprate) },
                 { 9, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -266,6 +281,7 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.YttriumBariumCuprate) },
                 { 9, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -281,6 +297,7 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.cableGtHex, GTMaterials.VanadiumGallium) },
                 { 8, new UnificationEntry(TagPrefix.cableGtHex, GTMaterials.YttriumBariumCuprate) },
                 { 9, new UnificationEntry(TagPrefix.cableGtHex, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.cableGtHex, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -326,6 +343,21 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.YttriumBariumCuprate) },
                 { 8, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.Europium) },
                 { FALLBACK, new UnificationEntry(TagPrefix.cableGtQuadruple, GTMaterials.Europium) },
+
+        }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+
+        CABLE_TIER_UP_OCT = new Component(Stream.of(new Object[][] {
+
+                { 0, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Tin) },
+                { 1, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Copper) },
+                { 2, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Gold) },
+                { 3, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Aluminium) },
+                { 4, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Platinum) },
+                { 5, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.NiobiumTitanium) },
+                { 6, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.VanadiumGallium) },
+                { 7, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.YttriumBariumCuprate) },
+                { 8, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Europium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.cableGtOctal, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -405,6 +437,7 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.pipeNormalFluid, GTMaterials.NiobiumTitanium) },
                 { 7, new UnificationEntry(TagPrefix.pipeNormalFluid, GTMaterials.Iridium) },
                 { 8, new UnificationEntry(TagPrefix.pipeNormalFluid, GTMaterials.Naquadah) },
+                { FALLBACK, new UnificationEntry(TagPrefix.pipeNormalFluid, GTMaterials.Naquadah) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -419,17 +452,18 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.pipeLargeFluid, GTMaterials.NiobiumTitanium) },
                 { 7, new UnificationEntry(TagPrefix.pipeLargeFluid, GTMaterials.Ultimet) },
                 { 8, new UnificationEntry(TagPrefix.pipeLargeFluid, GTMaterials.Naquadah) },
+                { FALLBACK, new UnificationEntry(TagPrefix.pipeLargeFluid, GTMaterials.Neutronium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
         PIPE_NONUPLE = new Component(Stream.of(new Object[][] {
 
-                { 4, new UnificationEntry(TagPrefix.pipeNonupleFluid, Titanium) },
-                { 5, new UnificationEntry(TagPrefix.pipeNonupleFluid, TungstenSteel) },
-                { 6, new UnificationEntry(TagPrefix.pipeNonupleFluid, NiobiumTitanium) },
-                { 7, new UnificationEntry(TagPrefix.pipeNonupleFluid, Iridium) },
-                { 8, new UnificationEntry(TagPrefix.pipeNonupleFluid, Naquadah) },
-                { GTValues.FALLBACK, new UnificationEntry(TagPrefix.pipeNonupleFluid, Neutronium) },
+                { 4, new UnificationEntry(TagPrefix.pipeNonupleFluid, GTMaterials.Titanium) },
+                { 5, new UnificationEntry(TagPrefix.pipeNonupleFluid, GTMaterials.TungstenSteel) },
+                { 6, new UnificationEntry(TagPrefix.pipeNonupleFluid, GTMaterials.NiobiumTitanium) },
+                { 7, new UnificationEntry(TagPrefix.pipeNonupleFluid, GTMaterials.Iridium) },
+                { 8, new UnificationEntry(TagPrefix.pipeNonupleFluid, GTMaterials.Naquadah) },
+                { GTValues.FALLBACK, new UnificationEntry(TagPrefix.pipeNonupleFluid, GTMaterials.Neutronium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -441,16 +475,16 @@ public class CraftingComponent {
          */
         GLASS = new Component(Stream.of(new Object[][] {
 
-                { GTValues.FALLBACK, CustomTags.GLASS_BLOCKS },
-                { ULV, CustomTags.GLASS_BLOCKS },
-                { LV, CustomTags.GLASS_BLOCKS },
-                { MV, CustomTags.GLASS_BLOCKS },
+                { GTValues.FALLBACK, Tags.Items.GLASS },
+                { ULV, Tags.Items.GLASS },
+                { LV, Tags.Items.GLASS },
+                { MV, Tags.Items.GLASS },
                 { HV, GTBlocks.CASING_TEMPERED_GLASS.asStack() },
                 { EV, GTBlocks.CASING_TEMPERED_GLASS.asStack() },
                 { IV, GTBlocks.CASING_LAMINATED_GLASS.asStack() },
                 { LuV, GTBlocks.CASING_LAMINATED_GLASS.asStack() },
                 { ZPM, GTBlocks.FUSION_GLASS.asStack() },
-                { UV, GTBlocks.FUSION_GLASS.asStack() }
+                { UV, GTBlocks.FUSION_GLASS.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -466,6 +500,7 @@ public class CraftingComponent {
                 { 7, new UnificationEntry(TagPrefix.plate, GTMaterials.NaquadahAlloy) },
                 { 8, new UnificationEntry(TagPrefix.plate, GTMaterials.Darmstadtium) },
                 { 9, new UnificationEntry(TagPrefix.plate, GTMaterials.Neutronium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.plate, GTMaterials.Neutronium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -494,6 +529,7 @@ public class CraftingComponent {
                 { 6, GTItems.ELECTRIC_MOTOR_LuV.asStack() },
                 { 7, GTItems.ELECTRIC_MOTOR_ZPM.asStack() },
                 { 8, GTItems.ELECTRIC_MOTOR_UV.asStack() },
+                { FALLBACK, GTItems.ELECTRIC_MOTOR_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -518,6 +554,7 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.rotor, GTMaterials.RhodiumPlatedPalladium) },
                 { 7, new UnificationEntry(TagPrefix.rotor, GTMaterials.NaquadahAlloy) },
                 { 8, new UnificationEntry(TagPrefix.rotor, GTMaterials.Darmstadtium) },
+                { FALLBACK, new UnificationEntry(TagPrefix.rotor, GTMaterials.Darmstadtium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -531,6 +568,7 @@ public class CraftingComponent {
                 { 6, GTItems.SENSOR_LuV.asStack() },
                 { 7, GTItems.SENSOR_ZPM.asStack() },
                 { 8, GTItems.SENSOR_UV.asStack() },
+                { FALLBACK, GTItems.SENSOR_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -587,6 +625,7 @@ public class CraftingComponent {
                 { 6, GTItems.ELECTRIC_PISTON_LUV.asStack() },
                 { 7, GTItems.ELECTRIC_PISTON_ZPM.asStack() },
                 { 8, GTItems.ELECTRIC_PISTON_UV.asStack() },
+                { FALLBACK, GTItems.ELECTRIC_PISTON_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -610,8 +649,19 @@ public class CraftingComponent {
                 { 6, GTItems.EMITTER_LuV.asStack() },
                 { 7, GTItems.EMITTER_ZPM.asStack() },
                 { 8, GTItems.EMITTER_UV.asStack() },
+                { FALLBACK, GTItems.EMITTER_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+
+        if (GTCEuAPI.isHighTier()) {
+            EMITTER.appendIngredients(Stream.of(new Object[][] {
+                    { 9, GTItems.EMITTER_UHV.asStack() },
+                    { 10, GTItems.EMITTER_UEV.asStack() },
+                    { 11, GTItems.EMITTER_UIV.asStack() },
+                    { 12, GTItems.EMITTER_UXV.asStack() },
+                    { 13, GTItems.EMITTER_OpV.asStack() },
+            }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+        }
 
         CONVEYOR = new Component(Stream.of(new Object[][] {
 
@@ -646,6 +696,7 @@ public class CraftingComponent {
                 { 6, GTItems.ROBOT_ARM_LuV.asStack() },
                 { 7, GTItems.ROBOT_ARM_ZPM.asStack() },
                 { 8, GTItems.ROBOT_ARM_UV.asStack() },
+                { FALLBACK, GTItems.ROBOT_ARM_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -670,6 +721,7 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.wireGtDouble, GTMaterials.HSSG) },
                 { 7, new UnificationEntry(TagPrefix.wireGtDouble, GTMaterials.Naquadah) },
                 { 8, new UnificationEntry(TagPrefix.wireGtDouble, GTMaterials.NaquadahAlloy) },
+                { FALLBACK, new UnificationEntry(TagPrefix.wireGtDouble, GTMaterials.Trinium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -684,6 +736,7 @@ public class CraftingComponent {
                 { 6, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.HSSG) },
                 { 7, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.Naquadah) },
                 { 8, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.NaquadahAlloy) },
+                { FALLBACK, new UnificationEntry(TagPrefix.wireGtQuadruple, GTMaterials.Trinium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -799,7 +852,7 @@ public class CraftingComponent {
                 { 7, GTItems.ULTRA_HIGH_POWER_INTEGRATED_CIRCUIT.asStack() },
                 { 8, GTItems.ULTRA_HIGH_POWER_INTEGRATED_CIRCUIT.asStack() },
                 { 9, GTItems.ULTRA_HIGH_POWER_INTEGRATED_CIRCUIT.asStack() },
-                { GTValues.FALLBACK, GTItems.ULTRA_HIGH_POWER_INTEGRATED_CIRCUIT },
+                { GTValues.FALLBACK, GTItems.ULTRA_HIGH_POWER_INTEGRATED_CIRCUIT.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -814,7 +867,7 @@ public class CraftingComponent {
                 { 6, GTItems.VOLTAGE_COIL_LuV.asStack() },
                 { 7, GTItems.VOLTAGE_COIL_ZPM.asStack() },
                 { 8, GTItems.VOLTAGE_COIL_UV.asStack() },
-                { GTValues.FALLBACK, GTItems.VOLTAGE_COIL_UV },
+                { GTValues.FALLBACK, GTItems.VOLTAGE_COIL_UV.asStack() },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
 
@@ -832,6 +885,50 @@ public class CraftingComponent {
                 { 9, new UnificationEntry(TagPrefix.spring, GTMaterials.Europium) },
 
         }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+
+        CRATE = new Component(Stream.of(new Object[][] {
+                { 0, new ItemStack(Blocks.CHEST) },
+                { 1, GTMachines.WOODEN_CRATE.asStack() },
+                { 2, GTMachines.BRONZE_CRATE.asStack() },
+                { 3, GTMachines.STEEL_CRATE.asStack() },
+                { 4, GTMachines.ALUMINIUM_CRATE.asStack() },
+                { 5, GTMachines.STAINLESS_STEEL_CRATE.asStack() },
+                { 6, GTMachines.TITANIUM_CRATE.asStack() },
+                { 7, GTMachines.TUNGSTENSTEEL_CRATE.asStack() },
+                { 8, GTMachines.SUPER_CHEST[1].asStack() },
+                { FALLBACK, GTMachines.SUPER_CHEST[1].asStack() },
+        }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+
+        DRUM = new Component(Stream.of(new Object[][] {
+                { 0, new ItemStack(Blocks.GLASS) },
+                { 1, GTMachines.WOODEN_DRUM.asStack() },
+                { 2, GTMachines.BRONZE_DRUM.asStack() },
+                { 3, GTMachines.STEEL_DRUM.asStack() },
+                { 4, GTMachines.ALUMINIUM_DRUM.asStack() },
+                { 5, GTMachines.STAINLESS_STEEL_DRUM.asStack() },
+                { 6, GTMachines.TITANIUM_DRUM.asStack() },
+                { 7, GTMachines.TUNGSTENSTEEL_DRUM.asStack() },
+                { 8, GTMachines.SUPER_TANK[1].asStack() },
+                { FALLBACK, GTMachines.SUPER_TANK[1].asStack() },
+        }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+
+        FRAME = new Component(Stream.of(new Object[][] {
+                { 0, new UnificationEntry(TagPrefix.frameGt, GTMaterials.Wood) },
+                { 1, new UnificationEntry(TagPrefix.frameGt, GTMaterials.Steel) },
+                { 2, new UnificationEntry(TagPrefix.frameGt, GTMaterials.Aluminium) },
+                { 3, new UnificationEntry(TagPrefix.frameGt, GTMaterials.StainlessSteel) },
+                { 4, new UnificationEntry(TagPrefix.frameGt, GTMaterials.Titanium) },
+                { 5, new UnificationEntry(TagPrefix.frameGt, GTMaterials.TungstenSteel) },
+                { 6, new UnificationEntry(TagPrefix.frameGt, GTMaterials.Ruridit) },
+                { 7, new UnificationEntry(TagPrefix.frameGt, GTMaterials.Iridium) },
+                { 8, new UnificationEntry(TagPrefix.frameGt, GTMaterials.NaquadahAlloy) },
+                { FALLBACK, new UnificationEntry(TagPrefix.frameGt, GTMaterials.NaquadahAlloy) },
+        }).collect(Collectors.toMap(data -> (Integer) data[0], data -> data[1])));
+
+        MinecraftForge.EVENT_BUS.post(new CraftingComponentModificationEvent());
+        if (GTCEu.isKubeJSLoaded()) {
+            KJSCallWrapper.craftingComponentModification();
+        }
     }
 
     public static class Component {
@@ -862,6 +959,13 @@ public class CraftingComponent {
         public void appendIngredients(Map<Integer, Object> newIngredients) {
             ingredients.remove(GTValues.FALLBACK);
             newIngredients.forEach((key, value) -> ingredients.merge(key, value, (v1, v2) -> v2));
+        }
+    }
+
+    private static final class KJSCallWrapper {
+
+        private static void craftingComponentModification() {
+            GTCEuStartupEvents.CRAFTING_COMPONENTS.post(new CraftingComponentsEventJS());
         }
     }
 }

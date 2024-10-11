@@ -196,11 +196,11 @@ public class PowerSubstationMachine extends WorkableMultiblockMachine
             } else if (isActive()) {
                 textList.add(Component.translatable("gtceu.multiblock.running"));
                 int currentProgress = (int) (recipeLogic.getProgressPercent() * 100);
-                // if (this.recipeMapWorkable.getParallelLimit() != 1) {
-                // textList.add(Component.translatable("gtceu.multiblock.parallel",
-                // this.recipeMapWorkable.getParallelLimit()));
-                // }
-                textList.add(Component.translatable("gtceu.multiblock.progress", currentProgress));
+                double maxInSec = (float) recipeLogic.getDuration() / 20.0f;
+                double currentInSec = (float) recipeLogic.getProgress() / 20.0f;
+                textList.add(
+                        Component.translatable("gtceu.multiblock.progress", String.format("%.2f", (float) currentInSec),
+                                String.format("%.2f", (float) maxInSec), currentProgress));
             } else {
                 textList.add(Component.translatable("gtceu.multiblock.idling"));
             }
@@ -354,14 +354,14 @@ public class PowerSubstationMachine extends WorkableMultiblockMachine
     }
 
     @Override
-    public void saveCustomPersistedData(CompoundTag tag, boolean forDrop) {
+    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
         super.saveCustomPersistedData(tag, forDrop);
         CompoundTag bankTag = energyBank.writeToNBT(new CompoundTag());
         tag.put("energyBank", bankTag);
     }
 
     @Override
-    public void loadCustomPersistedData(CompoundTag tag) {
+    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
         super.loadCustomPersistedData(tag);
         energyBank.readFromNBT(tag.getCompound("energyBank"));
     }

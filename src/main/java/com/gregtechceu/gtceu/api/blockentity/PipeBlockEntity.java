@@ -332,10 +332,11 @@ public abstract class PipeBlockEntity<PipeType extends Enum<PipeType> & IPipeTyp
     // ******* Interaction *******//
     //////////////////////////////////////
     @Override
-    public boolean shouldRenderGrid(Player player, ItemStack held, Set<GTToolType> toolTypes) {
-        if (toolTypes.contains(getPipeTuneTool()) || toolTypes.contains(GTToolType.SCREWDRIVER)) return true;
+    public boolean shouldRenderGrid(Player player, BlockPos pos, BlockState state, ItemStack held,
+                                    Set<GTToolType> toolTypes) {
+        if (toolTypes.contains(getPipeTuneTool())) return true;
         for (CoverBehavior cover : coverContainer.getCovers()) {
-            if (cover.shouldRenderGrid(player, held, toolTypes)) return true;
+            if (cover.shouldRenderGrid(player, pos, state, held, toolTypes)) return true;
         }
         return false;
     }
@@ -345,7 +346,8 @@ public abstract class PipeBlockEntity<PipeType extends Enum<PipeType> & IPipeTyp
     }
 
     @Override
-    public ResourceTexture sideTips(Player player, Set<GTToolType> toolTypes, Direction side) {
+    public ResourceTexture sideTips(Player player, BlockPos pos, BlockState state, Set<GTToolType> toolTypes,
+                                    Direction side) {
         if (toolTypes.contains(getPipeTuneTool())) {
             if (player.isShiftKeyDown() && this.canHaveBlockedFaces()) {
                 return getPipeTexture(isBlocked(side));
@@ -355,7 +357,7 @@ public abstract class PipeBlockEntity<PipeType extends Enum<PipeType> & IPipeTyp
         }
         var cover = coverContainer.getCoverAtSide(side);
         if (cover != null) {
-            return cover.sideTips(player, toolTypes, side);
+            return cover.sideTips(player, pos, state, toolTypes, side);
         }
         return null;
     }
@@ -391,20 +393,23 @@ public abstract class PipeBlockEntity<PipeType extends Enum<PipeType> & IPipeTyp
                 boolean isOpen = this.isConnected(gridSide);
                 this.setConnection(gridSide, !isOpen, false);
             }
+            playerIn.swing(hand);
             return Pair.of(getPipeTuneTool(), InteractionResult.CONSUME);
         } else if (toolTypes.contains(GTToolType.CROWBAR)) {
             if (coverBehavior != null) {
                 if (!isRemote()) {
                     getCoverContainer().removeCover(gridSide, playerIn);
+                    playerIn.swing(hand);
+                    return Pair.of(GTToolType.CROWBAR, InteractionResult.CONSUME);
                 }
-                return Pair.of(GTToolType.CROWBAR, InteractionResult.CONSUME);
             } else {
                 if (frameMaterial != null) {
                     Block.popResource(getLevel(), getPipePos(),
                             GTBlocks.MATERIAL_BLOCKS.get(TagPrefix.frameGt, frameMaterial).asStack());
                     frameMaterial = null;
+                    playerIn.swing(hand);
+                    return Pair.of(GTToolType.CROWBAR, InteractionResult.CONSUME);
                 }
-                return Pair.of(GTToolType.CROWBAR, InteractionResult.CONSUME);
             }
         }
 

@@ -1,5 +1,6 @@
 package com.gregtechceu.gtceu.data.recipe.generated;
 
+import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
 import com.gregtechceu.gtceu.api.capability.IElectricItem;
@@ -51,6 +52,11 @@ public class ToolRecipeHandler {
     public static Map<Integer, Material> baseMaterials = new HashMap<>();
     public static Map<Integer, List<ItemEntry<? extends Item>>> batteryItems = new HashMap<>();
     public static Map<Integer, ItemEntry<? extends Item>> powerUnitItems = new HashMap<>();
+    private static final Material[] softMaterials = new Material[] {
+            GTMaterials.Wood, GTMaterials.Rubber, GTMaterials.Polyethylene,
+            GTMaterials.Polytetrafluoroethylene, GTMaterials.Polybenzimidazole,
+            GTMaterials.SiliconeRubber, GTMaterials.StyreneButadieneRubber
+    };
 
     public static void init(Consumer<FinishedRecipe> provider) {
         initializeGTItems();
@@ -104,6 +110,9 @@ public class ToolRecipeHandler {
         ToolHeadReplaceRecipe.setToolHeadForTool(toolHeadWrench, GTToolType.WRENCH_IV);
         ToolHeadReplaceRecipe.setToolHeadForTool(toolHeadBuzzSaw, GTToolType.BUZZSAW);
         ToolHeadReplaceRecipe.setToolHeadForTool(toolHeadScrewdriver, GTToolType.SCREWDRIVER_LV);
+        ToolHeadReplaceRecipe.setToolHeadForTool(toolHeadWireCutter, GTToolType.WIRE_CUTTER_LV);
+        ToolHeadReplaceRecipe.setToolHeadForTool(toolHeadWireCutter, GTToolType.WIRE_CUTTER_HV);
+        ToolHeadReplaceRecipe.setToolHeadForTool(toolHeadWireCutter, GTToolType.WIRE_CUTTER_IV);
     }
 
     public static void registerPowerUnitRecipes(Consumer<FinishedRecipe> provider) {
@@ -208,6 +217,9 @@ public class ToolRecipeHandler {
             addToolRecipe(provider, material, GTToolType.WRENCH, false,
                     "PhP", " P ", " P ",
                     'P', plate);
+        } else {
+            GTCEu.LOGGER.info("Did not find plate for " + material.getName() +
+                    ", skipping mining hammer, spade, saw, axe, hoe, pickaxe, scythe, shovel, sword, hammer, file, knife, wrench recipes");
         }
 
         if (material.hasFlag(GENERATE_ROD)) {
@@ -225,7 +237,13 @@ public class ToolRecipeHandler {
                             'P', plate,
                             'T', new UnificationEntry(TagPrefix.screw, material),
                             'S', rod);
+                } else if (!ArrayUtils.contains(softMaterials, material)) {
+                    GTCEu.LOGGER
+                            .info("Did not find bolt for " + material.getName() + ", skipping wirecutter recipe");
                 }
+            } else {
+                GTCEu.LOGGER.info("Did not find plate for " + material.getName() +
+                        ", skipping wirecutter, butchery knife recipes");
             }
 
             addToolRecipe(provider, material, GTToolType.SCREWDRIVER, true,
@@ -236,6 +254,9 @@ public class ToolRecipeHandler {
             addDyeableToolRecipe(provider, material, GTToolType.CROWBAR, true,
                     "hDS", "DSD", "SDf",
                     'S', rod);
+        } else if (!ArrayUtils.contains(softMaterials, material)) {
+            GTCEu.LOGGER.info("Did not find rod for " + material.getName() +
+                    ", skipping wirecutter, butchery knife, screwdriver, crowbar recipes");
         }
     }
 
@@ -291,6 +312,22 @@ public class ToolRecipeHandler {
                         'W', new UnificationEntry(TagPrefix.screw, GTMaterials.Steel));
             }
 
+            // electric wire cutters
+            if (property.hasType(GTToolType.WIRE_CUTTER_LV)) {
+                toolPrefix = toolHeadWireCutter;
+                addElectricToolRecipe(toolPrefix, material,
+                        new GTToolType[] { GTToolType.WIRE_CUTTER_LV, GTToolType.WIRE_CUTTER_HV,
+                                GTToolType.WIRE_CUTTER_IV },
+                        provider);
+
+                VanillaRecipeHelper.addShapedRecipe(provider, String.format("wirecutter_head_%s", material.getName()),
+                        ChemicalHelper.get(toolPrefix, material),
+                        "XfX", "X X", "SRS",
+                        'X', plate,
+                        'R', steelRing,
+                        'S', new UnificationEntry(screw, GTMaterials.Steel));
+            }
+
             // buzzsaw
             if (property.hasType(GTToolType.BUZZSAW)) {
                 toolPrefix = TagPrefix.toolHeadBuzzSaw;
@@ -308,8 +345,14 @@ public class ToolRecipeHandler {
                             .duration((int) material.getMass() * 4)
                             .EUt(8L * voltageMultiplier)
                             .save(provider);
+                } else {
+                    GTCEu.LOGGER.info("Did not find gear for " + material.getName() +
+                            ", skipping gear -> buzzsaw blade recipe");
                 }
             }
+        } else {
+            GTCEu.LOGGER.info("Did not find plate for " + material.getName() +
+                    ", skipping electric drill, chainsaw, wrench, wirecutter, buzzsaw recipe");
         }
 
         // screwdriver
@@ -322,6 +365,9 @@ public class ToolRecipeHandler {
                         ChemicalHelper.get(toolPrefix, material),
                         "fR", " h",
                         'R', new UnificationEntry(TagPrefix.rodLong, material));
+            } else {
+                GTCEu.LOGGER.info("Did not find long rod for " + material.getName() +
+                        ", skipping electric screwdriver recipe");
             }
         }
     }
@@ -448,11 +494,6 @@ public class ToolRecipeHandler {
     }
 
     private static void registerSoftToolRecipes(Consumer<FinishedRecipe> provider) {
-        final Material[] softMaterials = new Material[] {
-                GTMaterials.Wood, GTMaterials.Rubber, GTMaterials.Polyethylene,
-                GTMaterials.Polytetrafluoroethylene, GTMaterials.Polybenzimidazole
-        };
-
         final ItemStack stick = new ItemStack(Items.STICK);
 
         for (int i = 0; i < softMaterials.length; i++) {
